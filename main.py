@@ -1,11 +1,9 @@
 import sys
-from typing import Tuple
 
-from PIL import Image
-
-from enums.effect_type import *
 from point_generator import *
 from tesellation_generator import *
+from visualizer import *
+from util.image_utils import *
 
 
 def parse_arguments(parameters: list) -> Tuple[ImageFile, TesellationType, DistributionType, EffectType]:
@@ -77,6 +75,9 @@ if __name__ == '__main__':
 
     tesellation_generator = TesellationGenerator(points, image, tesellation)
     regions = tesellation_generator.generate_regions()
+
+    visualizer = Visualizer(image, regions, effect)
+    visualizer.create_image()
 
 
 

@@ -1,3 +1,7 @@
+from typing import Tuple
+
+import cairo
+
 from abc import ABC, abstractmethod
 
 from geometry.point import *
@@ -11,6 +15,12 @@ class ARegion(ABC):
         return self.__vertices
 
     @abstractmethod
-    def draw(self) -> None:
+    def draw_basic(self, context: cairo.Context) -> None:
+        pass
+
+    @abstractmethod
+    def draw_grid(self, context: cairo.Context, border_width: float,
+                  border_color_rgb: Tuple[float, float, float]) -> None:
+
         pass
 
