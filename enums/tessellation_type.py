@@ -2,7 +2,7 @@ from enums.extended_enum import *
 
 
 # typy dělení digitalizovaného prostoru
-class TesellationType(ExtendedEnum):
+class TessellationType(ExtendedEnum):
     VORONOI = 'vrn'
     DELAUNAY = 'dln'
     QUADTREE = 'qdt'

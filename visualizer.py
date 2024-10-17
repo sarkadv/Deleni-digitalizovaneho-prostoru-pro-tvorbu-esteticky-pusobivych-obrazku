@@ -1,5 +1,3 @@
-import math
-
 from PIL.ImageFile import ImageFile
 
 from geometry.a_region import ARegion
@@ -37,5 +35,6 @@ class Visualizer:
                 region.draw_grid(context, border_width, border_color_rgb)
 
         surface.write_to_png(self.__output_filename)
+        print('Vygenerovaný obrázek uložen do souboru ' + self.__output_filename + '.')
 
 

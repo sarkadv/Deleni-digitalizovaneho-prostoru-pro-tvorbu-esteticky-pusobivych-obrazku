@@ -1,12 +1,15 @@
 import sys
 
 from point_generator import *
-from tesellation_generator import *
+from tessellation_generator import *
 from visualizer import *
 from util.image_utils import *
+from util.file_writer import *
+
+DELAUNAY_OUTSIDE_POINTS_FRACTION = 10;
 
 
-def parse_arguments(parameters: list) -> Tuple[ImageFile, TesellationType, DistributionType, EffectType]:
+def parse_arguments(parameters: list) -> Tuple[ImageFile, TessellationType, DistributionType, EffectType]:
     filename = parameters[1]
 
     try:
@@ -16,8 +19,8 @@ def parse_arguments(parameters: list) -> Tuple[ImageFile, TesellationType, Distr
 
     tesellation_string = parameters[2]
 
-    if tesellation_string in TesellationType.values():
-        tesselation_type = TesellationType(tesellation_string)
+    if tesellation_string in TessellationType.values():
+        tesselation_type = TessellationType(tesellation_string)
     else:
         raise ValueError(tesellation_string + ' není typ validního dělení obrazu.')
 
@@ -43,7 +46,7 @@ def print_help() -> None:
 
     print('Typy dělení prostoru: ')
 
-    tesselations_dict = TesellationType.dict()
+    tesselations_dict = TessellationType.dict()
 
     for key, value in tesselations_dict.items():
         print('\t' + key + ' ... ' + value)
@@ -70,14 +73,22 @@ if __name__ == '__main__':
         print_help()
         exit(1)
 
-    point_generator = PointGenerator(image, distribution)
+    if tesellation == TessellationType.VORONOI:
+        point_generator = PointGenerator(image, distribution, 1, image.width, 1, image.height)
+    elif tesellation == TessellationType.DELAUNAY:
+        #x_min = int((-1 / DELAUNAY_OUTSIDE_POINTS_FRACTION) * image.width)
+        #x_max = int(((DELAUNAY_OUTSIDE_POINTS_FRACTION + 1) / DELAUNAY_OUTSIDE_POINTS_FRACTION) * image.width)
+        #y_min = int((-1 / DELAUNAY_OUTSIDE_POINTS_FRACTION) * image.height)
+        #y_max = int(((DELAUNAY_OUTSIDE_POINTS_FRACTION + 1) / DELAUNAY_OUTSIDE_POINTS_FRACTION) * image.height)
+        point_generator = PointGenerator(image, distribution, 1, image.width, 1, image.height)
+    else:  # placeholder
+        point_generator = PointGenerator(image, distribution, 1, image.width, 1, image.height)
+
     points = point_generator.generate_points()
+    write_points_to_file(points)
 
     tesellation_generator = TesellationGenerator(points, image, tesellation)
     regions = tesellation_generator.generate_regions()
 
     visualizer = Visualizer(image, regions, effect)
     visualizer.create_image()
-
-
-

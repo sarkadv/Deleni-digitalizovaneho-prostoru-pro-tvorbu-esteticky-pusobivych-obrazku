@@ -1,0 +1,20 @@
+import datetime
+
+from geometry.point_2d import Point2D
+
+POINTS_OUTPUT_FOLDER = 'points_output/'
+POINTS_OUTPUT_EXTENSION = '.txt'
+
+
+def write_points_to_file(points: list[Point2D]) -> None:
+    filename = POINTS_OUTPUT_FOLDER + datetime.datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + POINTS_OUTPUT_EXTENSION
+
+    with open(filename, 'w') as file:
+        file.write('# počet bodů\n')
+        file.write(str(len(points)) + '\n')
+
+        file.write('# souřadnice x,souřadnice y\n')
+        for point in points:
+            file.write(str(point.get_x()) + ',' + str(point.get_y()) + '\n')
+
+    print('Vygenerované body uloženy do souboru ' + filename + '.')

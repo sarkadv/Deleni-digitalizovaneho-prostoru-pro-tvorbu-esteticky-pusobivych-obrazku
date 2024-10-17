@@ -2,18 +2,16 @@ import math
 
 import scipy.stats as stats
 from distributions.a_distribution import *
-from geometry.point import *
+from geometry.point_2d import *
 
 
 class UniformDistribution(ADistribution):
 
     POINT_COUNT_MULTIPLIER = 100_000
 
-    def generate_points(self, image: ImageFile) -> list[Point]:
-        uniform_discrete_variable_x = stats.randint(low=1, high=image.width)
-        uniform_discrete_variable_y = stats.randint(low=1, high=image.height)
-
-        image_longer_side = max(image.width, image.height)
+    def generate_points(self, image: ImageFile, x_min: int, x_max: int, y_min: int, y_max: int) -> list[Point2D]:
+        uniform_discrete_variable_x = stats.randint(low=x_min, high=x_max)
+        uniform_discrete_variable_y = stats.randint(low=y_min, high=y_max)
 
         point_count = round(math.log((image.width * image.height * self.POINT_COUNT_MULTIPLIER) ** 2, 1.05))
         points = []
@@ -22,13 +20,6 @@ class UniformDistribution(ADistribution):
         coordinates_y = uniform_discrete_variable_y.rvs(size=point_count)
 
         for i in range(0, point_count):
-            points.append(Point(int(coordinates_x[i]), int(coordinates_y[i])))
-
-        # přidání okrajových bodů, aby nebyly uvnitř obrázku vytvářeny nekonvexní regiony
-
-        points.append(Point(-image_longer_side*4, -image_longer_side*4))
-        points.append(Point(image_longer_side*4, -image_longer_side*4))
-        points.append(Point(image_longer_side*4, image_longer_side*4))
-        points.append(Point(-image_longer_side*4, image_longer_side*4))
+            points.append(Point2D(int(coordinates_x[i]), int(coordinates_y[i])))
 
         return list(set(points))    # odstranění duplicitních bodů
