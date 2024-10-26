@@ -61,7 +61,7 @@ def find_points_median_color(image: Image, points: list[Point2D]) -> Tuple[float
     colors = []
 
     for point in points:
-        if point.get_x() < 0 or point.get_x() >= image.width or point.get_y() < 0 or point.get_y() >= image.height:
+        if not is_point_in_image(image, point):
             continue
 
         colors.append(image.getpixel((point.get_x(), point.get_y())))
@@ -72,6 +72,10 @@ def find_points_median_color(image: Image, points: list[Point2D]) -> Tuple[float
     median_color = np.median(np.array(colors), axis=0)
     median_color_tuple = tuple(float(primary) for primary in median_color)
     return color_int_to_float(median_color_tuple)
+
+
+def is_point_in_image(image, point: Point2D):
+    return not (point.get_x() < 0 or point.get_x() >= image.width or point.get_y() < 0 or point.get_y() >= image.height)
 
 
 def find_complementary_color(color: Tuple[float, float, float]) -> Tuple[float, float, float]:
@@ -89,12 +93,23 @@ def color_int_to_float(color_int: Tuple) -> Tuple:
     return tuple(primary_color / 255 for primary_color in color_int)
 
 
-def find_points_in_polygon(vertices: list[Point2D], point_count_limit: int) -> list[Point2D]:
+def find_points_in_polygon(vertices: list[Point2D], point_count_limit: int, image: Image) -> list[Point2D]:
     """
     :param vertices: vrcholy polygonu
     :param point_count_limit: limit vygenerovaných bodů, po jehož dosažení je hledání ukončeno (-1 žádný limit)
+    :param image: celý obraz
     :return: body nacházející se v polygonu
     """
+
+    no_vertices_in_image = True
+
+    for vertex in vertices:
+        if is_point_in_image(image, vertex):
+            no_vertices_in_image = False
+            break
+
+    if no_vertices_in_image:
+        return []
 
     min_x = min([point.get_x() for point in vertices])
     max_x = max([point.get_x() for point in vertices])
@@ -121,10 +136,10 @@ def find_points_in_polygon(vertices: list[Point2D], point_count_limit: int) -> l
         for j in range(len(y_indices)):
             x = x_points[x_indices[i]]
             y = y_points[y_indices[j]]
-            point = Point(x, y)
+            point = Point2D(x, y)
 
-            if convex_hull.contains(point):
-                points.append(Point2D(x, y))
+            if convex_hull.contains(Point(point.get_x(), point.get_y())) and is_point_in_image(image, point):
+                points.append(point)
 
             if point_count_limit != -1 and len(points) == point_count_limit:
                 return points

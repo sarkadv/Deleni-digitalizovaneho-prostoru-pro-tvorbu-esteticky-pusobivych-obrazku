@@ -10,6 +10,9 @@ DELAUNAY_OUTSIDE_POINTS_FRACTION = 10;
 
 
 def parse_arguments(parameters: list) -> Tuple[ImageFile, TessellationType, DistributionType, EffectType]:
+    if len(parameters) < 5:
+        raise ValueError('Nebyl zadán dostatečný počet parametrů.')
+
     filename = parameters[1]
 
     try:
@@ -76,11 +79,11 @@ if __name__ == '__main__':
     if tesellation == TessellationType.VORONOI:
         point_generator = PointGenerator(image, distribution, 1, image.width, 1, image.height)
     elif tesellation == TessellationType.DELAUNAY:
-        #x_min = int((-1 / DELAUNAY_OUTSIDE_POINTS_FRACTION) * image.width)
-        #x_max = int(((DELAUNAY_OUTSIDE_POINTS_FRACTION + 1) / DELAUNAY_OUTSIDE_POINTS_FRACTION) * image.width)
-        #y_min = int((-1 / DELAUNAY_OUTSIDE_POINTS_FRACTION) * image.height)
-        #y_max = int(((DELAUNAY_OUTSIDE_POINTS_FRACTION + 1) / DELAUNAY_OUTSIDE_POINTS_FRACTION) * image.height)
-        point_generator = PointGenerator(image, distribution, 1, image.width, 1, image.height)
+        x_min = int((-1 / DELAUNAY_OUTSIDE_POINTS_FRACTION) * image.width)
+        x_max = int(((DELAUNAY_OUTSIDE_POINTS_FRACTION + 1) / DELAUNAY_OUTSIDE_POINTS_FRACTION) * image.width)
+        y_min = int((-1 / DELAUNAY_OUTSIDE_POINTS_FRACTION) * image.height)
+        y_max = int(((DELAUNAY_OUTSIDE_POINTS_FRACTION + 1) / DELAUNAY_OUTSIDE_POINTS_FRACTION) * image.height)
+        point_generator = PointGenerator(image, distribution, x_min, x_max, y_min, y_max)
     else:  # placeholder
         point_generator = PointGenerator(image, distribution, 1, image.width, 1, image.height)
 

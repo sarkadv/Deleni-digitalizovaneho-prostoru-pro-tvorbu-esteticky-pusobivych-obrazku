@@ -43,14 +43,5 @@ class DelaunayTessellation(ATessellation):
         return regions
 
     def __get_base_color(self, image: ImageFile, vertices: list[Point2D]) -> Tuple[float, float, float, float]:
-        points = find_points_in_polygon(vertices, self.REGION_CHOSEN_POINTS_COUNT)
+        points = find_points_in_polygon(vertices, self.REGION_CHOSEN_POINTS_COUNT, image)
         return find_points_mode_color(image, points)
-
-        #return find_points_median_color(image, vertices)
-
-
-
-
-
-
-
