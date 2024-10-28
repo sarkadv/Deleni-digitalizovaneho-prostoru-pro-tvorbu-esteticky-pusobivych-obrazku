@@ -31,7 +31,10 @@ class ResultWindow(tk.Toplevel):
         self.__create_canvas()
 
         self.__save_button = tk.Button(self, text="Uložit obrázek", command=lambda: self.__save_file())
-        self.__save_button.pack(pady=10, side=tk.BOTTOM)
+        self.__save_button.pack(pady=10, padx=(250, 10), side=tk.LEFT)
+
+        self.__save_button = tk.Button(self, text="< Zpět", command=lambda: self.__close_window())
+        self.__save_button.pack(pady=10, padx=(10, 250), side=tk.RIGHT)
 
     def __create_canvas(self) -> None:
         self.__canvas = tk.Canvas(self, width=self.CANVAS_WIDTH, height=self.CANVAS_HEIGHT)
