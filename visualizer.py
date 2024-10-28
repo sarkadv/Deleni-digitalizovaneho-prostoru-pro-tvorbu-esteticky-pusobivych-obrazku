@@ -16,7 +16,7 @@ class Visualizer:
 
         self.__output_filename = find_output_filename(self.__image.filename)
 
-    def create_image(self):
+    def create_image(self) -> Image:
         surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.__image.width, self.__image.height)
         context = cairo.Context(surface)
 
@@ -34,7 +34,7 @@ class Visualizer:
             for region in self.__regions:
                 region.draw_grid(context, border_width, border_color_rgb)
 
-        surface.write_to_png(self.__output_filename)
-        print('Vygenerovaný obrázek uložen do souboru ' + self.__output_filename + '.')
-
+        data = surface.get_data()
+        image = Image.frombuffer("RGBA", (self.__image.width, self.__image.height), data, "raw", "BGRA", 0, 1)
+        return image
 

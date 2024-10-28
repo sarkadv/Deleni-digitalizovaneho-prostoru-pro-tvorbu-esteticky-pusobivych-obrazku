@@ -1,6 +1,3 @@
-import random
-
-import numpy as np
 from PIL.ImageFile import ImageFile
 from scipy.spatial import Delaunay
 

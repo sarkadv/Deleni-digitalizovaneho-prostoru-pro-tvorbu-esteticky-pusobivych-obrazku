@@ -6,7 +6,7 @@ POINTS_OUTPUT_FOLDER = 'points_output/'
 POINTS_OUTPUT_EXTENSION = '.txt'
 
 
-def write_points_to_file(points: list[Point2D]) -> None:
+def write_points_to_file(points: list[Point2D]) -> str:
     filename = POINTS_OUTPUT_FOLDER + datetime.datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + POINTS_OUTPUT_EXTENSION
 
     with open(filename, 'w') as file:
@@ -18,3 +18,4 @@ def write_points_to_file(points: list[Point2D]) -> None:
             file.write(str(point.get_x()) + ',' + str(point.get_y()) + '\n')
 
     print('Vygenerované body uloženy do souboru ' + filename + '.')
+    return filename
