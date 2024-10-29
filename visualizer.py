@@ -9,7 +9,7 @@ class Visualizer:
 
     BORDER_DIVISOR = 500
 
-    def __init__(self, image: ImageFile, regions: list[ARegion], effect: EffectType):
+    def __init__(self, image: Image, regions: list[ARegion], effect: EffectType):
         self.__image = image
         self.__regions = regions
         self.__effect = effect

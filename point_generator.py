@@ -1,3 +1,4 @@
+from distributions.laplace_distribution import LaplaceDistribution
 from enums.distribution_type import *
 from distributions.uniform_distribution import *
 
@@ -14,6 +15,8 @@ class PointGenerator:
 
         if distribution_type == DistributionType.UNIFORM:
             self.__distribution = UniformDistribution()
+        elif distribution_type == DistributionType.LAPLACE:
+            self.__distribution = LaplaceDistribution()
         else:   # placeholder
             self.__distribution = UniformDistribution()
 

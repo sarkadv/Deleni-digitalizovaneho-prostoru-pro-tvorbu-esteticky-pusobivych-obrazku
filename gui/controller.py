@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 
-from PIL import Image
+from PIL import Image, ImageOps
 
 from enums.distribution_type import DistributionType
 from enums.effect_type import EffectType
@@ -58,6 +58,9 @@ class Controller(tk.Tk):
     def set_image_file(self, filename: str) -> None:
         try:
             image_file = Image.open(filename)
+            image_file = ImageOps.exif_transpose(image_file)    # správná rotace obrázku
+            image_file = image_file.convert("RGB")
+            image_file.filename = filename
             self.__image = image_file
             self.__frames[OptionsFrame.NAME].configure_file_label(filename)
 
@@ -103,13 +106,15 @@ class Controller(tk.Tk):
             point_generator = PointGenerator(self.__image, self.__distribution, 1, self.__image.width, 1, self.__image.height)
 
         elif self.__tessellation == TessellationType.DELAUNAY_FAST or self.__tessellation == TessellationType.DELAUNAY_BETTER_COLORS:
-            # body i trochu mimo obrázek
-            x_min = int((-1 / DELAUNAY_OUTSIDE_POINTS_FRACTION) * self.__image.width)
-            x_max = int(((DELAUNAY_OUTSIDE_POINTS_FRACTION + 1) / DELAUNAY_OUTSIDE_POINTS_FRACTION) * self.__image.width)
-            y_min = int((-1 / DELAUNAY_OUTSIDE_POINTS_FRACTION) * self.__image.height)
-            y_max = int(((DELAUNAY_OUTSIDE_POINTS_FRACTION + 1) / DELAUNAY_OUTSIDE_POINTS_FRACTION) * self.__image.height)
-
-            point_generator = PointGenerator(self.__image, self.__distribution, x_min, x_max, y_min, y_max)
+            if self.__distribution == DistributionType.UNIFORM:
+                # body i trochu mimo obrázek
+                x_min = int((-1 / DELAUNAY_OUTSIDE_POINTS_FRACTION) * self.__image.width)
+                x_max = int(((DELAUNAY_OUTSIDE_POINTS_FRACTION + 1) / DELAUNAY_OUTSIDE_POINTS_FRACTION) * self.__image.width)
+                y_min = int((-1 / DELAUNAY_OUTSIDE_POINTS_FRACTION) * self.__image.height)
+                y_max = int(((DELAUNAY_OUTSIDE_POINTS_FRACTION + 1) / DELAUNAY_OUTSIDE_POINTS_FRACTION) * self.__image.height)
+                point_generator = PointGenerator(self.__image, self.__distribution, x_min, x_max, y_min, y_max)
+            else:
+                point_generator = PointGenerator(self.__image, self.__distribution, 1, self.__image.width, 1, self.__image.height)
 
         elif self.__tessellation == TessellationType.QUADTREE:
             point_generator = PointGenerator(self.__image, self.__distribution, 1, self.__image.width, 1, self.__image.height)
