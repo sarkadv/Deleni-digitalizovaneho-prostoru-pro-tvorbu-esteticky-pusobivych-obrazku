@@ -1,5 +1,6 @@
 from enums.tessellation_type import *
-from tessellations.delaunay_tessellation import DelaunayTessellation
+from tessellations.delaunay_tessellation_better_colors import DelaunayTessellationBetterColors
+from tessellations.delaunay_tessellation_fast import DelaunayTessellationFast
 from tessellations.voronoi_tessellation import *
 from geometry.a_region import *
 
@@ -11,8 +12,10 @@ class TesellationGenerator:
 
         if tessellation_type == TessellationType.VORONOI:
             self.__tesellation = VoronoiTessellation()
-        elif tessellation_type == TessellationType.DELAUNAY:
-            self.__tesellation = DelaunayTessellation()
+        elif tessellation_type == TessellationType.DELAUNAY_FAST:
+            self.__tesellation = DelaunayTessellationFast()
+        elif tessellation_type == TessellationType.DELAUNAY_BETTER_COLORS:
+            self.__tesellation = DelaunayTessellationBetterColors()
         else:   # placeholder
             self.__tesellation = VoronoiTessellation()
 

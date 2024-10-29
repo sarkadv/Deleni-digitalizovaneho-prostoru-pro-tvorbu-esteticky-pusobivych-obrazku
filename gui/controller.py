@@ -23,9 +23,6 @@ class Controller(tk.Tk):
     MIN_WINDOW_HEIGHT = 500
 
     def __init__(self):
-        self.__init_window()
-
-    def __init_window(self) -> None:
         tk.Tk.__init__(self)
         self.title("ddpptepo")
         self.geometry(self.DEFAULT_WINDOW_SIZE)
@@ -33,11 +30,11 @@ class Controller(tk.Tk):
         self.maxsize(self.MIN_WINDOW_WIDTH, self.MIN_WINDOW_HEIGHT)
         self.focus_force()
 
-        self.__image = None     # původní obrázek
+        self.__image = None  # původní obrázek
         self.__tessellation = None
         self.__distribution = None
         self.__effect = None
-        self.__generated_image = None   # vygenerovaný obrázek
+        self.__generated_image = None  # vygenerovaný obrázek
 
         container = tk.Frame(self)
         container.pack()
@@ -105,7 +102,7 @@ class Controller(tk.Tk):
         if self.__tessellation == TessellationType.VORONOI:
             point_generator = PointGenerator(self.__image, self.__distribution, 1, self.__image.width, 1, self.__image.height)
 
-        elif self.__tessellation == TessellationType.DELAUNAY:
+        elif self.__tessellation == TessellationType.DELAUNAY_FAST or self.__tessellation == TessellationType.DELAUNAY_BETTER_COLORS:
             # body i trochu mimo obrázek
             x_min = int((-1 / DELAUNAY_OUTSIDE_POINTS_FRACTION) * self.__image.width)
             x_max = int(((DELAUNAY_OUTSIDE_POINTS_FRACTION + 1) / DELAUNAY_OUTSIDE_POINTS_FRACTION) * self.__image.width)
@@ -135,4 +132,4 @@ class Controller(tk.Tk):
     def reset(self) -> None:
         # celé okno se zruší a znovu inicializuje
         self.destroy()
-        self.__init_window()
+        self.__init__()

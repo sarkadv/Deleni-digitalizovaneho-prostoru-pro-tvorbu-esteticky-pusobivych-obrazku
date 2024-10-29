@@ -76,7 +76,7 @@ class OptionsFrame(tk.Frame):
                                                      command=self.__controller.set_distribution)
             self.__distribution_menu.pack(pady=10, fill="x", expand=True)
 
-        elif tessellation == TessellationType.DELAUNAY:
+        elif tessellation == TessellationType.DELAUNAY_FAST or tessellation == TessellationType.DELAUNAY_BETTER_COLORS:
             self.__distribution_menu = tk.OptionMenu(self, self.__distribution_string,
                                                      *[DistributionType.UNIFORM.value],
                                                      command=self.__controller.set_distribution)
@@ -96,7 +96,7 @@ class OptionsFrame(tk.Frame):
                                                command=self.__controller.set_effect)
             self.__effect_menu.pack(pady=10, fill="x", expand=True)
 
-        elif tessellation == TessellationType.DELAUNAY:
+        elif tessellation == TessellationType.DELAUNAY_FAST or tessellation == TessellationType.DELAUNAY_BETTER_COLORS:
             self.__effect_menu = tk.OptionMenu(self, self.__effect_string,
                                                *EffectType.values(),
                                                command=self.__controller.set_effect)
