@@ -1,4 +1,3 @@
-import math
 from typing import Tuple
 
 from scipy.spatial import Delaunay, KDTree
@@ -138,28 +137,24 @@ class LaplaceDistribution(ADistribution):
         return result
 
     def __remove_similar_pixels(self, pixels: list[Pixel], min_distance_between_points: int):
-        # Build a KDTree from the points
+        # vytvoření datové struktury KD-tree z bodů
         points = [(pixel.get_x(), pixel.get_y()) for pixel in pixels]
         tree = KDTree(points)
 
-        # Track points to keep
         unique_points = []
-        visited = set()
+        visited = set()     # indexy již nepotřebných bodů
 
         for i in range(len(points)):
             point = points[i]
 
-            # Skip points we've already marked as too close to another point
             if i in visited:
                 continue
 
-            # Add this point to unique points
             unique_points.append(pixels[i])
 
-            # Find all points within the threshold distance
+            # nalezení všech bodů, které jsou blízko aktuálního bodu
             nearby_points = tree.query_ball_point(point, min_distance_between_points)
 
-            # Mark nearby points as visited
             for j in nearby_points:
                 visited.add(j)
 
