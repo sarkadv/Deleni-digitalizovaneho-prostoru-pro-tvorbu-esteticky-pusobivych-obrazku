@@ -40,3 +40,6 @@ class ARegion(ABC):
     def get_base_color(self) -> Tuple[float, float, float, float]:
         return self.__base_color
 
+    def set_base_color(self, base_color: Tuple[float, float, float, float]) -> None:
+        if 0.0 <= all(base_color) <= 1.0:
+            self.__base_color = base_color

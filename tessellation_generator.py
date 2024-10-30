@@ -1,6 +1,7 @@
 from enums.tessellation_type import *
 from tessellations.delaunay_tessellation_better_colors import DelaunayTessellationBetterColors
 from tessellations.delaunay_tessellation_fast import DelaunayTessellationFast
+from tessellations.quadtree_tessellation import QuadtreeTessellation
 from tessellations.voronoi_tessellation import *
 from geometry.a_region import *
 
@@ -16,8 +17,8 @@ class TesellationGenerator:
             self.__tesellation = DelaunayTessellationFast()
         elif tessellation_type == TessellationType.DELAUNAY_BETTER_COLORS:
             self.__tesellation = DelaunayTessellationBetterColors()
-        else:   # placeholder
-            self.__tesellation = VoronoiTessellation()
+        elif tessellation_type == TessellationType.QUADTREE:
+            self.__tesellation = QuadtreeTessellation()
 
     def generate_regions(self) -> list[ARegion]:
         return self.__tesellation.generate_regions(self.__points, self.__image)

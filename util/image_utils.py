@@ -1,3 +1,4 @@
+import math
 import random
 from collections import Counter
 from typing import Tuple
@@ -73,6 +74,24 @@ def color_int_to_float(color_int: Tuple) -> Tuple:
     return tuple(primary_color / 255 for primary_color in color_int)
 
 
+def find_rectangle_points(vertices: list[Point2D], include_border: bool) -> Tuple[list[int], list[int]]:
+    min_x = min([point.get_x() for point in vertices])
+    max_x = max([point.get_x() for point in vertices])
+
+    min_y = min([point.get_y() for point in vertices])
+    max_y = max([point.get_y() for point in vertices])
+
+    if include_border:
+        addition = 1
+    else:
+        addition = 0
+
+    x_points = list(range(min_x, max_x + addition))
+    y_points = list(range(min_y, max_y + addition))
+
+    return x_points, y_points
+
+
 def find_points_in_polygon(vertices: list[Point2D], point_count_limit: int, image: Image) -> list[Point2D]:
     """
     :param vertices: vrcholy polygonu
@@ -91,14 +110,7 @@ def find_points_in_polygon(vertices: list[Point2D], point_count_limit: int, imag
     if no_vertices_in_image:
         return []
 
-    min_x = min([point.get_x() for point in vertices])
-    max_x = max([point.get_x() for point in vertices])
-
-    min_y = min([point.get_y() for point in vertices])
-    max_y = max([point.get_y() for point in vertices])
-
-    x_points = list(range(min_x, max_x + 1))
-    y_points = list(range(min_y, max_y + 1))
+    x_points, y_points = find_rectangle_points(vertices, True)
 
     x_indices = list(range(len(x_points)))
     y_indices = list(range(len(y_points)))
@@ -126,36 +138,55 @@ def find_points_in_polygon(vertices: list[Point2D], point_count_limit: int, imag
 
     return points
 
+
 def get_rectangle_average_color(vertices: list[Point2D], image: Image) -> Tuple[float, float, float, float]:
-    min_x = min([point.get_x() for point in vertices])
-    max_x = max([point.get_x() for point in vertices])
+    x_points, y_points = find_rectangle_points(vertices, False)
 
-    min_y = min([point.get_y() for point in vertices])
-    max_y = max([point.get_y() for point in vertices])
-
-    x_points = list(range(min_x, max_x + 1))
-    y_points = list(range(min_y, max_y + 1))
+    # obdélník je moc malý
+    if len(x_points) == 0 or len(y_points) == 0:
+        r, g, b = image.getpixel((vertices[0].get_x(), vertices[0].get_y()))
+        return color_int_to_float((r, g, b, 255))
 
     sum_r = 0
     sum_g = 0
     sum_b = 0
 
     for i in range(len(x_points)):
-        r, g, b = image.getpixel((x_points[i], y_points[i]))
-        sum_r += r
-        sum_g += g
-        sum_b += b
+        for j in range(len(y_points)):
+            r, g, b = image.getpixel((x_points[i], y_points[j]))
+            sum_r += r
+            sum_g += g
+            sum_b += b
 
-    sum_r = int(sum_r / len(x_points))
-    sum_g = int(sum_g / len(x_points))
-    sum_b = int(sum_b / len(x_points))
+    sum_r = int(sum_r / (len(x_points) * len(y_points)))
+    sum_g = int(sum_g / (len(x_points) * len(y_points)))
+    sum_b = int(sum_b / (len(x_points) * len(y_points)))
 
     return color_int_to_float((sum_r, sum_g, sum_b, 255))
 
-def get_rectangle_color_standard_deviation(vertices: list[Point2D], image: Image, average_color: Tuple[float, float, float, float]) -> Tuple[float, float, float, float]:
-    pass
 
+def get_rectangle_color_standard_deviation(vertices: list[Point2D], image: Image,
+                                           average_color: Tuple[float, float, float, float]) -> float:
 
+    x_points, y_points = find_rectangle_points(vertices, False)
 
+    # obdélník je moc malý
+    if len(x_points) * len(y_points) <= 1:
+        return 0
 
+    sd_r = 0
+    sd_g = 0
+    sd_b = 0
 
+    for i in range(len(x_points)):
+        for j in range(len(y_points)):
+            r, g, b = image.getpixel((x_points[i], y_points[j]))
+            sd_r += (r / 255.0 - average_color[0]) ** 2
+            sd_g += (g / 255.0 - average_color[1]) ** 2
+            sd_b += (b / 255.0 - average_color[2]) ** 2
+
+    sd_r = sd_r * (1.0 / (len(x_points) * len(y_points) - 1))
+    sd_g = sd_g * (1.0 / (len(x_points) * len(y_points) - 1))
+    sd_b = sd_b * (1.0 / (len(x_points) * len(y_points) - 1))
+
+    return math.sqrt(sd_r) + math.sqrt(sd_g) + math.sqrt(sd_b)

@@ -113,7 +113,7 @@ class LaplaceDistribution(ADistribution):
 
         return r_channel, g_channel, b_channel
 
-    def __compute_laplace(self, color_matrix: list[list[int]]):
+    def __compute_laplace(self, color_matrix: list[list[int]]) -> list[list[int]]:
         # výsledná matice má o 2 řádky a sloupce méně
         result_height = len(color_matrix) - 2
         result_width = len(color_matrix[0]) - 2
@@ -136,7 +136,7 @@ class LaplaceDistribution(ADistribution):
 
         return result
 
-    def __remove_similar_pixels(self, pixels: list[Pixel], min_distance_between_points: int):
+    def __remove_similar_pixels(self, pixels: list[Pixel], min_distance_between_points: int) -> list[Pixel]:
         # vytvoření datové struktury KD-tree z bodů
         points = [(pixel.get_x(), pixel.get_y()) for pixel in pixels]
         tree = KDTree(points)
