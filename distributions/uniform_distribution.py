@@ -13,7 +13,7 @@ class UniformDistribution(ADistribution):
         uniform_discrete_variable_x = stats.randint(low=x_min, high=x_max)
         uniform_discrete_variable_y = stats.randint(low=y_min, high=y_max)
 
-        point_count = round(math.log((image.width * image.height * self.POINT_COUNT_MULTIPLIER) ** 2, 1.05))
+        point_count = round(math.log((image.width * image.height * self.POINT_COUNT_MULTIPLIER) ** 2, 1.05)) * 2
         points = []
 
         coordinates_x = uniform_discrete_variable_x.rvs(size=point_count)

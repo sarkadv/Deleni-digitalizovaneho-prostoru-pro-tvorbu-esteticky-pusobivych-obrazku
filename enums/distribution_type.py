@@ -5,4 +5,4 @@ from enums.extended_enum import *
 class DistributionType(ExtendedEnum):
     UNIFORM = 'Rovnoměrné rozdělení'
     LAPLACE = 'Laplaceův operátor'
-    QUADTREE = 'Rozdělení podle quadtree'
+    QUADTREE = 'Kvadrantový strom'

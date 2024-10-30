@@ -1,6 +1,7 @@
+import math
 from typing import Tuple
 
-from scipy.spatial import Delaunay
+from scipy.spatial import Delaunay, KDTree
 
 from distributions.a_distribution import *
 from geometry.pixel import Pixel
@@ -11,6 +12,7 @@ class LaplaceDistribution(ADistribution):
     CONVOLUTION_MATRIX = [[0, 1, 0], [1, -4, 1], [0, 1, 0]]     # konvoluční jádro
     POINT_COUNT_MULTIPLIER = 0.02   # procento bodů s nejvyšší hodnotou gradientu, které budou považovány za hrany
     AREA_DIVISOR = 1000
+    MIN_DISTANCE_BETWEEN_POINTS = 8
 
     def generate_points(self, image: ImageFile, x_min: int, x_max: int, y_min: int, y_max: int) -> list[Point2D]:
         # oddělení barevných kanálů
@@ -31,6 +33,9 @@ class LaplaceDistribution(ADistribution):
         pixels.sort(key=lambda pixel: abs(pixel.get_r() + pixel.get_g() + pixel.get_b()), reverse=True)
         keep_count = int(len(pixels) * self.POINT_COUNT_MULTIPLIER)
         pixels = pixels[:keep_count]
+
+        # ponecháme pouze část pixelů, které jsou od sebe dostatečně daleko (aby nevznikaly moc malé trojúhelníky)
+        pixels = self.__remove_similar_pixels(pixels, self.MIN_DISTANCE_BETWEEN_POINTS)
 
         # body pro DT
         coordinates = [[pixel.get_x(), pixel.get_y()] for pixel in pixels]
@@ -131,3 +136,31 @@ class LaplaceDistribution(ADistribution):
                 result[i - 1][j - 1] = laplace_sum
 
         return result
+
+    def __remove_similar_pixels(self, pixels: list[Pixel], min_distance_between_points: int):
+        # Build a KDTree from the points
+        points = [(pixel.get_x(), pixel.get_y()) for pixel in pixels]
+        tree = KDTree(points)
+
+        # Track points to keep
+        unique_points = []
+        visited = set()
+
+        for i in range(len(points)):
+            point = points[i]
+
+            # Skip points we've already marked as too close to another point
+            if i in visited:
+                continue
+
+            # Add this point to unique points
+            unique_points.append(pixels[i])
+
+            # Find all points within the threshold distance
+            nearby_points = tree.query_ball_point(point, min_distance_between_points)
+
+            # Mark nearby points as visited
+            for j in nearby_points:
+                visited.add(j)
+
+        return unique_points
