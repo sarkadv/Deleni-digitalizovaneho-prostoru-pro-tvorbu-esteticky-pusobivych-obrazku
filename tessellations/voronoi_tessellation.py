@@ -10,11 +10,19 @@ class VoronoiTessellation(ATessellation):
     def generate_regions(self, points: list[Point2D], image: ImageFile) -> list[ARegion]:
         # přidání okrajových bodů, aby nebyly uvnitř obrázku vytvářeny nekonvexní regiony
         image_longer_side = max(image.width, image.height)
+        top_left = Point2D(-image_longer_side * 4, -image_longer_side * 4)
+        top_right = Point2D(image_longer_side * 4, -image_longer_side * 4)
+        bottom_right = Point2D(image_longer_side * 4, image_longer_side * 4)
+        bottom_left = Point2D(-image_longer_side * 4, image_longer_side * 4)
 
-        points.append(Point2D(-image_longer_side * 4, -image_longer_side * 4))
-        points.append(Point2D(image_longer_side * 4, -image_longer_side * 4))
-        points.append(Point2D(image_longer_side * 4, image_longer_side * 4))
-        points.append(Point2D(-image_longer_side * 4, image_longer_side * 4))
+        if top_left not in points:
+            points.append(top_left)
+        if top_right not in points:
+            points.append(top_right)
+        if bottom_right not in points:
+            points.append(bottom_right)
+        if bottom_left not in points:
+            points.append(bottom_left)
 
         coordinates = [[point.get_x(), point.get_y()] for point in points]
 
