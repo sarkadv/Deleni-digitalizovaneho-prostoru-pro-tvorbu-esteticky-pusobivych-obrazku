@@ -13,9 +13,9 @@ class ADelaunayTessellation(ATessellation):
     def generate_regions(self, points: list[Point2D], image: ImageFile) -> list[ARegion]:
         # přidání okrajových bodů, aby byly vytvořeny trojúhelníky po celém obrazu
         points.append(Point2D(0, 0))
-        points.append(Point2D(image.width, image.height))
-        points.append(Point2D(0, image.height))
-        points.append(Point2D(image.width, 0))
+        points.append(Point2D(image.width - 1, image.height - 1))
+        points.append(Point2D(0, image.height - 1))
+        points.append(Point2D(image.width - 1, 0))
 
         coordinates = [[point.get_x(), point.get_y()] for point in points]
 

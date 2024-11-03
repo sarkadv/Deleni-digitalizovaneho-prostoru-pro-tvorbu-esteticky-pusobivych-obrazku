@@ -5,8 +5,8 @@ from util.image_utils import *
 
 
 class QuadtreeTessellation(ATessellation):
-    MAX_STANDARD_DEVIATION = 0.15   # maximální směrodatná odchylka regionu
-    MIN_AREA_SIZE = 15  # minimální obsah obdélníku
+    MAX_STANDARD_DEVIATION = 0.15   # maximální směrodatná odchylka barev regionu
+    MIN_AREA_SIZE = 20  # minimální obsah obdélníku
 
     def generate_regions(self, points: list[Point2D], image: ImageFile) -> list[ARegion]:
         stack = []
@@ -41,8 +41,8 @@ class QuadtreeTessellation(ATessellation):
                             [None, None]]
 
                 # rozdělení v polovině v obou osách
-                x_division = int((corners[0][1].get_x() - corners[0][0].get_x()) / 2) + corners[0][0].get_x()
-                y_division = int((corners[1][1].get_y() - corners[0][0].get_y()) / 2) + corners[0][0].get_y()
+                x_division = round((corners[0][1].get_x() - corners[0][0].get_x()) / 2) + corners[0][0].get_x()
+                y_division = round((corners[1][1].get_y() - corners[0][0].get_y()) / 2) + corners[0][0].get_y()
 
                 # levý horní obdélník
                 corners_upper_left = [corners[0][0], Point2D(x_division, corners[0][0].get_y()),

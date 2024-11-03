@@ -1,3 +1,6 @@
+import math
+
+
 class Point2D:
     def __init__(self, x: int, y: int):
         self.__x = x
@@ -17,4 +20,3 @@ class Point2D:
 
     def get_y(self) -> int:
         return self.__y
-

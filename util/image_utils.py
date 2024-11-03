@@ -7,7 +7,7 @@ import cairo
 import PIL.Image as Image
 import os
 
-import numpy as np
+from shapely import Polygon
 from shapely.geometry import Point, MultiPoint
 
 from geometry.point_2d import Point2D
@@ -41,7 +41,7 @@ def find_points_mode_color(image: Image, points: list[Point2D]) -> Tuple[float, 
     color_counts = Counter()
 
     for point in points:
-        if point.get_x() < 0 or point.get_x() >= image.width or point.get_y() < 0 or point.get_y() >= image.height:
+        if not is_point_in_image(image, point):
             continue
 
         pixel = image.getpixel((point.get_x(), point.get_y())) + (255,)
@@ -53,6 +53,30 @@ def find_points_mode_color(image: Image, points: list[Point2D]) -> Tuple[float, 
     mode_color_int = color_counts.most_common(1)[0][0]
 
     return color_int_to_float(mode_color_int)
+
+
+def find_points_average_color(image: Image, points: list[Point2D]) -> Tuple[float, float, float, float]:
+    if len(points) < 1:
+        return 0, 0, 0, 0
+
+    sum_r = 0
+    sum_g = 0
+    sum_b = 0
+
+    for point in points:
+        if not is_point_in_image(image, point):
+            continue
+
+        r, g, b = image.getpixel((point.get_x(), point.get_y()))
+        sum_r += r
+        sum_g += g
+        sum_b += b
+
+    sum_r = int(sum_r / (len(points)))
+    sum_g = int(sum_g / (len(points)))
+    sum_b = int(sum_b / (len(points)))
+
+    return color_int_to_float((sum_r, sum_g, sum_b, 255))
 
 
 def is_point_in_image(image, point: Point2D):
@@ -71,7 +95,7 @@ def find_output_filename(input_filename: str) -> str:
 
 
 def color_int_to_float(color_int: Tuple) -> Tuple:
-    return tuple(primary_color / 255 for primary_color in color_int)
+    return tuple(channel / 255 for channel in color_int)
 
 
 def find_rectangle_points(vertices: list[Point2D], include_border: bool) -> Tuple[list[int], list[int]]:
@@ -118,7 +142,6 @@ def find_points_in_polygon(vertices: list[Point2D], point_count_limit: int, imag
     random.shuffle(x_indices)
     random.shuffle(y_indices)
 
-    # vytvoření konvexní obálky
     multipoint = MultiPoint([(vertex.get_x(), vertex.get_y()) for vertex in vertices])
     convex_hull = multipoint.convex_hull
 
@@ -130,7 +153,7 @@ def find_points_in_polygon(vertices: list[Point2D], point_count_limit: int, imag
             y = y_points[y_indices[j]]
             point = Point2D(x, y)
 
-            if convex_hull.contains(Point(point.get_x(), point.get_y())) and is_point_in_image(image, point):
+            if is_point_in_image(image, point) and convex_hull.contains(Point(point.get_x(), point.get_y())):
                 points.append(point)
 
             if point_count_limit != -1 and len(points) == point_count_limit:
@@ -167,7 +190,6 @@ def get_rectangle_average_color(vertices: list[Point2D], image: Image) -> Tuple[
 
 def get_rectangle_color_standard_deviation(vertices: list[Point2D], image: Image,
                                            average_color: Tuple[float, float, float, float]) -> float:
-
     x_points, y_points = find_rectangle_points(vertices, False)
 
     # obdélník je moc malý
@@ -190,3 +212,51 @@ def get_rectangle_color_standard_deviation(vertices: list[Point2D], image: Image
     sd_b = sd_b * (1.0 / (len(x_points) * len(y_points) - 1))
 
     return math.sqrt(sd_r) + math.sqrt(sd_g) + math.sqrt(sd_b)
+
+
+def get_point_color(image: Image, point: Point2D) -> Tuple[float, float, float, float]:
+    if is_point_in_image(image, point):
+        r, g, b = image.getpixel((point.get_x(), point.get_y()))
+        return color_int_to_float((r, g, b, 255))
+    else:
+        return color_int_to_float((0, 0, 0, 0))
+
+
+def crop_polygon_by_bounds(bounds: list[Tuple[float, float]],
+                           vertices: list[Tuple[float, float]]) -> list[Tuple[float, float]]:
+    intersecting_polygon = Polygon(vertices)
+    bounding_polygon = Polygon(bounds)
+
+    if not intersecting_polygon.is_valid or not bounding_polygon.is_valid:
+        return vertices
+
+    cropped_polygon = intersecting_polygon.intersection(bounding_polygon)
+
+    if not isinstance(cropped_polygon, Polygon):
+        return vertices
+
+    x_coords, y_coords = cropped_polygon.exterior.xy
+    new_vertices = []
+
+    for i in range(len(x_coords)):
+        new_vertices.append((x_coords[i], y_coords[i]))
+
+    return new_vertices
+
+
+def get_polygon_from_points(points: list[Point2D]) -> Polygon:
+    return Polygon([(point.get_x(), point.get_y()) for point in points])
+
+
+def random_point_in_polygon(polygon: Polygon) -> Point2D:
+    min_x, min_y, max_x, max_y = polygon.bounds
+    min_x = round(min_x)
+    max_x = round(max_x)
+    min_y = round(min_y)
+    max_y = round(max_y)
+
+    while True:
+        random_point = Point(random.randint(min_x, max_x), random.randint(min_y, max_y))
+
+        if polygon.contains(random_point):
+            return Point2D(int(random_point.x), int(random_point.y))

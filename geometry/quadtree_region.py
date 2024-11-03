@@ -17,6 +17,10 @@ class QuadtreeRegion(ARegion):
 
         while len(stack) > 0:
             region = stack.pop()
+
+            if len(region.get_vertices()) == 0:
+                continue
+
             points = [(vertex.get_x(), vertex.get_y()) for vertex in region.get_vertices()]
 
             # nakreslení výplně
@@ -45,6 +49,10 @@ class QuadtreeRegion(ARegion):
 
         while len(stack) > 0:
             region = stack.pop()
+
+            if len(region.get_vertices()) == 0:
+                continue
+
             points = [(vertex.get_x(), vertex.get_y()) for vertex in region.get_vertices()]
 
             context.move_to(*points[0])  # přesunutí na první bod

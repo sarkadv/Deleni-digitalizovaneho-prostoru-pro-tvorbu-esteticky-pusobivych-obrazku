@@ -13,6 +13,9 @@ class ARegion(ABC):
         self.__base_color = base_color
 
     def draw_basic(self, context: cairo.Context) -> None:
+        if len(self.get_vertices()) == 0:
+            return
+
         points = [(vertex.get_x(), vertex.get_y()) for vertex in self.get_vertices()]
 
         # nakreslení výplně

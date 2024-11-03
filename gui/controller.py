@@ -113,6 +113,7 @@ class Controller(tk.Tk):
                 y_min = int((-1 / DELAUNAY_OUTSIDE_POINTS_FRACTION) * self.__image.height)
                 y_max = int(((DELAUNAY_OUTSIDE_POINTS_FRACTION + 1) / DELAUNAY_OUTSIDE_POINTS_FRACTION) * self.__image.height)
                 point_generator = PointGenerator(self.__image, self.__distribution, x_min, x_max, y_min, y_max)
+
             else:
                 point_generator = PointGenerator(self.__image, self.__distribution, 1, self.__image.width, 1, self.__image.height)
 

@@ -1,3 +1,4 @@
+from distributions.deviation_distribution import DeviationDistribution
 from distributions.laplace_distribution import LaplaceDistribution
 from distributions.quadtree_distribution import QuadtreeDistribution
 from enums.distribution_type import *
@@ -16,10 +17,15 @@ class PointGenerator:
 
         if distribution_type == DistributionType.UNIFORM:
             self.__distribution = UniformDistribution()
+
         elif distribution_type == DistributionType.LAPLACE:
             self.__distribution = LaplaceDistribution()
+
         elif distribution_type == DistributionType.QUADTREE:
             self.__distribution = QuadtreeDistribution()
+
+        elif distribution_type == DistributionType.DEVIATION:
+            self.__distribution = DeviationDistribution()
 
     def generate_points(self) -> list[Point2D]:
         return self.__distribution.generate_points(self.__image, self.__x_min, self.__x_max, self.__y_min, self.__y_max)

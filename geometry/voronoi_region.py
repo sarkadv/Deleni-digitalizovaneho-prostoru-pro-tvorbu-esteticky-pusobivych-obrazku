@@ -11,6 +11,9 @@ class VoronoiRegion(ARegion):
     def draw_grid(self, context: cairo.Context, border_width: float,
                   border_color_rgb: Tuple[float, float, float]) -> None:
 
+        if len(self.get_vertices()) == 0:
+            return
+
         points = [(vertex.get_x(), vertex.get_y()) for vertex in self.get_vertices()]
 
         context.move_to(*points[0])  # přesunutí na první bod

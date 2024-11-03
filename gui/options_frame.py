@@ -72,13 +72,15 @@ class OptionsFrame(tk.Frame):
 
         if tessellation == TessellationType.VORONOI:
             self.__distribution_menu = tk.OptionMenu(self, self.__distribution_string,
-                                                     *[DistributionType.UNIFORM.value],
+                                                     *[DistributionType.UNIFORM.value,
+                                                       DistributionType.DEVIATION.value],
                                                      command=self.__controller.set_distribution)
             self.__distribution_menu.pack(pady=10, fill="x", expand=True)
 
         elif tessellation == TessellationType.DELAUNAY_FAST or tessellation == TessellationType.DELAUNAY_BETTER_COLORS:
             self.__distribution_menu = tk.OptionMenu(self, self.__distribution_string,
-                                                     *[DistributionType.UNIFORM.value, DistributionType.LAPLACE.value],
+                                                     *[DistributionType.UNIFORM.value,
+                                                       DistributionType.LAPLACE.value],
                                                      command=self.__controller.set_distribution)
             self.__distribution_menu.pack(pady=10, fill="x", expand=True)
 
