@@ -20,3 +20,9 @@ class Point2D:
 
     def get_y(self) -> int:
         return self.__y
+
+    def euclidean_distance(self, other: 'Point2D') -> float:
+        return math.sqrt((self.__x - other.get_x()) ** 2 + (self.__y - other.get_y()) ** 2)
+
+    def line_center(self, other: 'Point2D') -> 'Point2D':
+        return Point2D(int((self.__x + other.get_x()) / 2), int((self.__y + other.get_y()) / 2))

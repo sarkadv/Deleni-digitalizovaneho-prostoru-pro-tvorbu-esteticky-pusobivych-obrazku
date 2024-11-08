@@ -18,19 +18,21 @@ DELAUNAY_OUTSIDE_POINTS_FRACTION = 10
 
 class Controller(tk.Tk):
 
-    DEFAULT_WINDOW_SIZE = "300x500"
-    MIN_WINDOW_WIDTH = 300
-    MIN_WINDOW_HEIGHT = 500
+    DEFAULT_WINDOW_SIZE = "350x550"
+    MIN_WINDOW_WIDTH = 350
+    MIN_WINDOW_HEIGHT = 550
+    TITLE = "ddpptepo"
 
     def __init__(self):
         tk.Tk.__init__(self)
-        self.title("ddpptepo")
+        self.title(self.TITLE)
         self.geometry(self.DEFAULT_WINDOW_SIZE)
         self.minsize(self.MIN_WINDOW_WIDTH, self.MIN_WINDOW_HEIGHT)
         self.maxsize(self.MIN_WINDOW_WIDTH, self.MIN_WINDOW_HEIGHT)
         self.focus_force()
 
         self.__image = None  # původní obrázek
+        self.__points_output = False    # budou vygenerované body zapsány do souboru ?
         self.__tessellation = None
         self.__distribution = None
         self.__effect = None
@@ -68,6 +70,9 @@ class Controller(tk.Tk):
             messagebox.showerror("Chyba", "Soubor " + filename + "není validní obrázek.")
             self.__image = None
             self.__frames[OptionsFrame.NAME].configure_file_label("")
+
+    def set_points_output(self, points_output_int: int) -> None:
+        self.__points_output = bool(points_output_int)
 
     def set_tessellation(self, tessellation_string: str) -> None:
         self.__tessellation = TessellationType(tessellation_string)
@@ -112,6 +117,7 @@ class Controller(tk.Tk):
                 x_max = int(((DELAUNAY_OUTSIDE_POINTS_FRACTION + 1) / DELAUNAY_OUTSIDE_POINTS_FRACTION) * self.__image.width)
                 y_min = int((-1 / DELAUNAY_OUTSIDE_POINTS_FRACTION) * self.__image.height)
                 y_max = int(((DELAUNAY_OUTSIDE_POINTS_FRACTION + 1) / DELAUNAY_OUTSIDE_POINTS_FRACTION) * self.__image.height)
+
                 point_generator = PointGenerator(self.__image, self.__distribution, x_min, x_max, y_min, y_max)
 
             else:
@@ -121,10 +127,12 @@ class Controller(tk.Tk):
             point_generator = PointGenerator(self.__image, self.__distribution, 1, self.__image.width, 1, self.__image.height)
 
         points = point_generator.generate_points()
-        filename = write_points_to_file(points)
 
-        self.__frames[GeneratingFrame.NAME].set_points_file(filename)
-        self.update()
+        if self.__points_output:
+            filename = write_points_to_file(points)
+
+            self.__frames[GeneratingFrame.NAME].set_points_file(filename)
+            self.update()
 
         tesellation_generator = TesellationGenerator(points, self.__image, self.__tessellation)
         regions = tesellation_generator.generate_regions()

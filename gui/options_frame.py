@@ -27,6 +27,13 @@ class OptionsFrame(tk.Frame):
         self.__file_label = tk.Label(self, text="Vybraný obrázek: X")
         self.__file_label.pack(pady=(0, 10))
 
+        self.__points_output_int = tk.IntVar(self, value=0)
+        self.__points_output_btn = tk.Checkbutton(self, text='Zapsat vygenerované body do souboru',
+                                                  variable=self.__points_output_int, onvalue=1, offvalue=0,
+                                                  command=lambda:
+                                                  self.__controller.set_points_output(self.__points_output_int))
+        self.__points_output_btn.pack(pady=10)
+
         self.__tessellation_string = tk.StringVar(self, value="Vybrat teselaci")
         self.__tessellation_menu = tk.OptionMenu(self, self.__tessellation_string, *TessellationType.values(),
                                                  command=self.__controller.set_tessellation)
@@ -80,7 +87,9 @@ class OptionsFrame(tk.Frame):
         elif tessellation == TessellationType.DELAUNAY_FAST or tessellation == TessellationType.DELAUNAY_BETTER_COLORS:
             self.__distribution_menu = tk.OptionMenu(self, self.__distribution_string,
                                                      *[DistributionType.UNIFORM.value,
-                                                       DistributionType.LAPLACE.value],
+                                                       DistributionType.LAPLACE_AREA.value,
+                                                       DistributionType.LAPLACE_LENGTH.value,
+                                                       DistributionType.LAPLACE_GRADIENT.value],
                                                      command=self.__controller.set_distribution)
             self.__distribution_menu.pack(pady=10, fill="x", expand=True)
 

@@ -260,3 +260,20 @@ def random_point_in_polygon(polygon: Polygon) -> Point2D:
 
         if polygon.contains(random_point):
             return Point2D(int(random_point.x), int(random_point.y))
+
+
+def find_polygon_centroid(vertices: list[Point2D]) -> Point2D:
+    if len(vertices) == 0:
+        return Point2D(-1, -1)
+
+    centroid_x = 0
+    centroid_y = 0
+
+    for point in vertices:
+        centroid_x += point.get_x()
+        centroid_y += point.get_y()
+
+    centroid_x = int(centroid_x / len(vertices))
+    centroid_y = int(centroid_y / len(vertices))
+
+    return Point2D(centroid_x, centroid_y)

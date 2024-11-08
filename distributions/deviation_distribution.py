@@ -9,10 +9,10 @@ from util.image_utils import *
 
 
 class DeviationDistribution(ADistribution):
-    MAX_STANDARD_DEVIATION = 0.1  # maximální směrodatná odchylka barev regionu
+    MAX_STANDARD_DEVIATION = 0.15  # maximální směrodatná odchylka barev regionu
     MIN_AREA_SIZE = 0   # minimální obsah oblasti
 
-    MIN_AREA_SIZE_DIVISOR = 30_000
+    MIN_AREA_SIZE_DIVISOR = 10_000
     POINT_COUNT_MULTIPLIER = 100_000
 
     def generate_points(self, image: ImageFile, x_min: int, x_max: int, y_min: int, y_max: int) -> list[Point2D]:

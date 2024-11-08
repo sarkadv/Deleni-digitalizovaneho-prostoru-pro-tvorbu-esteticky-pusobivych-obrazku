@@ -5,10 +5,13 @@ from util.image_utils import *
 
 
 class QuadtreeTessellation(ATessellation):
-    MAX_STANDARD_DEVIATION = 0.15   # maximální směrodatná odchylka barev regionu
-    MIN_AREA_SIZE = 20  # minimální obsah obdélníku
+    MAX_STANDARD_DEVIATION = 0.12   # maximální směrodatná odchylka barev regionu
+    MIN_AREA_SIZE = 0  # minimální obsah obdélníku
+    MIN_AREA_SIZE_DIVISOR = 10_000
 
     def generate_regions(self, points: list[Point2D], image: ImageFile) -> list[ARegion]:
+        self.MIN_AREA_SIZE = image.width * image.height / self.MIN_AREA_SIZE_DIVISOR
+
         stack = []
 
         # pole points musí mít vždy body v pořadí od levého horního a poté po směru hodinových ručiček

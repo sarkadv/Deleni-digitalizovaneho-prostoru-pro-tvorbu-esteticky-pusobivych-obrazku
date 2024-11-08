@@ -13,9 +13,9 @@ def write_points_to_file(points: list[Point2D]) -> str:
         file.write('# počet bodů\n')
         file.write(str(len(points)) + '\n')
 
-        file.write('# souřadnice x,souřadnice y\n')
+        file.write('# souřadnice x;souřadnice y\n')
         for point in points:
-            file.write(str(point.get_x()) + ',' + str(point.get_y()) + '\n')
+            file.write(str(point.get_x()) + ';' + str(point.get_y()) + '\n')
 
     print('Vygenerované body uloženy do souboru ' + filename + '.')
     return filename

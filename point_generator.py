@@ -1,5 +1,7 @@
 from distributions.deviation_distribution import DeviationDistribution
-from distributions.laplace_distribution import LaplaceDistribution
+from distributions.laplace_distribution_area import LaplaceDistributionArea
+from distributions.laplace_distribution_gradient import LaplaceDistributionGradient
+from distributions.laplace_distribution_length import LaplaceDistributionLength
 from distributions.quadtree_distribution import QuadtreeDistribution
 from enums.distribution_type import *
 from distributions.uniform_distribution import *
@@ -18,8 +20,14 @@ class PointGenerator:
         if distribution_type == DistributionType.UNIFORM:
             self.__distribution = UniformDistribution()
 
-        elif distribution_type == DistributionType.LAPLACE:
-            self.__distribution = LaplaceDistribution()
+        elif distribution_type == DistributionType.LAPLACE_AREA:
+            self.__distribution = LaplaceDistributionArea()
+
+        elif distribution_type == DistributionType.LAPLACE_LENGTH:
+            self.__distribution = LaplaceDistributionLength()
+
+        elif distribution_type == DistributionType.LAPLACE_GRADIENT:
+            self.__distribution = LaplaceDistributionGradient()
 
         elif distribution_type == DistributionType.QUADTREE:
             self.__distribution = QuadtreeDistribution()

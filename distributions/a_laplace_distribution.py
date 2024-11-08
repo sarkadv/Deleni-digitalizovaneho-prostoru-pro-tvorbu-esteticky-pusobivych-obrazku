@@ -7,13 +7,24 @@ from geometry.pixel import Pixel
 from geometry.point_2d import *
 
 
-class LaplaceDistribution(ADistribution):
+class ALaplaceDistribution(ADistribution):
     CONVOLUTION_MATRIX = [[0, 1, 0], [1, -4, 1], [0, 1, 0]]     # konvoluční jádro
-    POINT_COUNT_MULTIPLIER = 0.02   # procento bodů s nejvyšší hodnotou gradientu, které budou považovány za hrany
-    AREA_DIVISOR = 1000
-    MIN_DISTANCE_BETWEEN_POINTS = 8
+    POINT_COUNT_MULTIPLIER = 0.03   # procento bodů s nejvyšší hodnotou gradientu, které budou považovány za hrany
+
+    AREA_DIVISOR = 500
+    SIDE_DIVISOR = 20
+    DISTANCE_DIVISOR = 100
+
+    MAX_TRIANGLE_AREA = 0    # maximální obsah trojúhelníku
+    MAX_SIDE_LENGTH = 0     # maximální délka strany trojúhelníku
+    MAX_VERTEX_COLOR_DIFFERENCE = 0.85
+    MIN_DISTANCE_BETWEEN_POINTS = 0
 
     def generate_points(self, image: ImageFile, x_min: int, x_max: int, y_min: int, y_max: int) -> list[Point2D]:
+        self.MAX_TRIANGLE_AREA = int((image.width * image.height) / self.AREA_DIVISOR)
+        self.MAX_SIDE_LENGTH = int(min(image.width, image.height) / self.SIDE_DIVISOR)
+        self.MIN_DISTANCE_BETWEEN_POINTS = int(min(image.width, image.height) / self.DISTANCE_DIVISOR)
+
         # oddělení barevných kanálů
         r_channel, g_channel, b_channel = self.__create_color_channels(image)
 
@@ -40,7 +51,6 @@ class LaplaceDistribution(ADistribution):
         coordinates = [[pixel.get_x(), pixel.get_y()] for pixel in pixels]
 
         change = True
-        max_area = int((image.width * image.height) / self.AREA_DIVISOR)    # maximální obsah trojúhelníku
 
         # vytvoříme DT a přidáme body, aby nevznikaly příliš velké trojúhelníky
         while change:
@@ -54,25 +64,26 @@ class LaplaceDistribution(ADistribution):
                     vertices.append(delaunay.points[index])
 
                 points = [Point2D(round(vertex[0]), round(vertex[1])) for vertex in vertices]
-                p1 = points[0]
-                p2 = points[1]
-                p3 = points[2]
 
-                # obsah trojúhelníku
-                area = abs(p1.get_x() * (p2.get_y() - p3.get_y())
-                           + p2.get_x() * (p3.get_y() - p1.get_y())
-                           + p3.get_x() * (p1.get_y() - p2.get_y())) / 2
+                # otestování, zda je nutné přidat nový bod + vytvoření nového bodu / bodů
+                split_result = self.split_triangle(points, image)
 
-                if area > max_area:
-                    # nalezení středu trojúhelníku
-                    centroid_x = int((p1.get_x() + p2.get_x() + p3.get_x()) / 3)
-                    centroid_y = int((p1.get_y() + p2.get_y() + p3.get_y()) / 3)
+                if len(split_result) > 0:
+                    # byl vytvořen nový bod / body
 
-                    coordinates.append([centroid_x, centroid_y])
-                    change = True
+                    for new in split_result:
+                        coordinate = [new.get_x(), new.get_y()]
+
+                        if coordinate not in coordinates:
+                            coordinates.append(coordinate)
+                            change = True
 
         points = [Point2D(coordinate[0], coordinate[1]) for coordinate in coordinates]
         return list(set(points))    # odstranění duplicit
+
+    @abstractmethod
+    def split_triangle(self, points: list[Point2D], image: ImageFile) -> list[Point2D]:
+        pass
 
     def __create_color_channels(self, image: ImageFile) -> Tuple:
         # inicializace 2D pole hodnot barev pro výpočet Laplaceova filtru
