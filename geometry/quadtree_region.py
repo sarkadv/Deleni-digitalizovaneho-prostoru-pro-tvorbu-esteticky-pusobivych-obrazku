@@ -4,6 +4,7 @@ import cairo
 
 from geometry.a_region import ARegion
 from geometry.point_2d import Point2D
+from util.image_utils import find_complementary_color
 
 
 class QuadtreeRegion(ARegion):
@@ -44,7 +45,7 @@ class QuadtreeRegion(ARegion):
                         stack.append(child)
 
     def draw_grid(self, context: cairo.Context, border_width: float,
-                  border_color_rgb: Tuple[float, float, float]) -> None:
+                  border_color_rgb: Tuple[float, float, float], colorful: bool) -> None:
         stack = [self]
 
         while len(stack) > 0:
@@ -62,7 +63,14 @@ class QuadtreeRegion(ARegion):
             context.close_path()  # uzavření polygonu
 
             # nakreslení obrysu
-            context.set_source_rgb(*border_color_rgb)
+            if not colorful:
+                # všechny obrysy stejná barva
+                context.set_source_rgb(*border_color_rgb)
+            else:
+                # obrys každé oblasti může být jiný
+                r, g, b, a = region.get_base_color()
+                context.set_source_rgb(*find_complementary_color((r, g, b)))
+
             context.set_line_width(border_width)
             context.stroke()
 

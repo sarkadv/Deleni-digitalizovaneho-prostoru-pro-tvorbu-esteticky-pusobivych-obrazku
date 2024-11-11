@@ -33,7 +33,7 @@ class ARegion(ABC):
 
     @abstractmethod
     def draw_grid(self, context: cairo.Context, border_width: float,
-                  border_color_rgb: Tuple[float, float, float]) -> None:
+                  border_color_rgb: Tuple[float, float, float], colorful: bool) -> None:
 
         pass
 

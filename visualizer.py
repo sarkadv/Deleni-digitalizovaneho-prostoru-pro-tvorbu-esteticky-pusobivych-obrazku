@@ -32,7 +32,7 @@ class Visualizer:
             context = cairo.Context(surface)
 
             for region in self.__regions:
-                region.draw_grid(context, border_width, border_color_rgb)
+                region.draw_grid(context, border_width, border_color_rgb, False)
 
         elif self.__effect == EffectType.GRID_COLORFUL:
             border_width = self.__image.width / self.BORDER_DIVISOR
@@ -41,9 +41,8 @@ class Visualizer:
             context = cairo.Context(surface)
 
             for region in self.__regions:
-                r, g, b, a = region.get_base_color()
-                border_color_rgb = find_complementary_color((r, g, b))
-                region.draw_grid(context, border_width, border_color_rgb)
+                # barva je vybrána samostatně pro každý region
+                region.draw_grid(context, border_width, (0.0, 0.0, 0.0), True)
 
         data = surface.get_data()
         image = Image.frombuffer("RGBA", (self.__image.width, self.__image.height), data, "raw", "BGRA", 0, 1)

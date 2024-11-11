@@ -1,6 +1,7 @@
 import math
 
 from geometry.a_region import *
+from util.image_utils import find_complementary_color
 
 
 class VoronoiRegion(ARegion):
@@ -9,7 +10,7 @@ class VoronoiRegion(ARegion):
         self.__generator = seed
 
     def draw_grid(self, context: cairo.Context, border_width: float,
-                  border_color_rgb: Tuple[float, float, float]) -> None:
+                  border_color_rgb: Tuple[float, float, float], colorful: bool) -> None:
 
         if len(self.get_vertices()) == 0:
             return
@@ -23,7 +24,12 @@ class VoronoiRegion(ARegion):
         context.close_path()    # uzavření polygonu
 
         # nakreslení obrysu
-        context.set_source_rgb(*border_color_rgb)
+        if not colorful:
+            context.set_source_rgb(*border_color_rgb)
+        else:
+            r, g, b, a = self.get_base_color()
+            context.set_source_rgb(*find_complementary_color((r, g, b)))
+
         context.set_line_width(border_width)
         context.stroke()
 

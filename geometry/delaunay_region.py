@@ -4,6 +4,7 @@ import cairo
 
 from geometry.a_region import ARegion
 from geometry.point_2d import Point2D
+from util.image_utils import find_complementary_color
 
 
 class DelaunayRegion(ARegion):
@@ -11,7 +12,7 @@ class DelaunayRegion(ARegion):
         super().__init__(vertices, base_color)
 
     def draw_grid(self, context: cairo.Context, border_width: float,
-                  border_color_rgb: Tuple[float, float, float]) -> None:
+                  border_color_rgb: Tuple[float, float, float], colorful: bool) -> None:
 
         if len(self.get_vertices()) == 0:
             return
@@ -25,6 +26,11 @@ class DelaunayRegion(ARegion):
         context.close_path()    # uzavření trojúhelníku
 
         # nakreslení obrysu
-        context.set_source_rgb(*border_color_rgb)
+        if not colorful:
+            context.set_source_rgb(*border_color_rgb)
+        else:
+            r, g, b, a = self.get_base_color()
+            context.set_source_rgb(*find_complementary_color((r, g, b)))
+
         context.set_line_width(border_width)
         context.stroke()
