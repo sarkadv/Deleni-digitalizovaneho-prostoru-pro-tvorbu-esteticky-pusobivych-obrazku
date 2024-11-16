@@ -194,6 +194,6 @@ class DeviationDistribution(ADistribution):
 
             # hledáme body, které jsou uvnitř obrázku a zároveň uvnitř polygonu
             if is_point_in_image(image, point) and cropped_polygon.contains(Point(x, y)):
-                result.add(Point2D(x, y))
+                result.add(point)
 
         return list(result)

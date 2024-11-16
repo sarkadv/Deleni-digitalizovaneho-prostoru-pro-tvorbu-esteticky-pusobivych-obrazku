@@ -1,5 +1,3 @@
-from PIL.ImageFile import ImageFile
-
 from geometry.a_region import ARegion
 from enums.effect_type import *
 from util.image_utils import *
