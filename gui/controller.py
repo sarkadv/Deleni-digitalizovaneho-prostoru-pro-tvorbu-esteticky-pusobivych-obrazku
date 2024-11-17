@@ -133,6 +133,9 @@ class Controller(tk.Tk):
 
             self.__frames[GeneratingFrame.NAME].set_points_file(filename)
             self.update()
+        else:
+            self.__frames[GeneratingFrame.NAME].set_points_generated()
+            self.update()
 
         tesellation_generator = TesellationGenerator(points, self.__image, self.__tessellation)
         regions = tesellation_generator.generate_regions()

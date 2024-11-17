@@ -2,6 +2,7 @@ from distributions.deviation_distribution import DeviationDistribution
 from distributions.laplace_distribution_area import LaplaceDistributionArea
 from distributions.laplace_distribution_gradient import LaplaceDistributionGradient
 from distributions.laplace_distribution_length import LaplaceDistributionLength
+from distributions.mitchell_distribution import MitchellDistribution
 from distributions.normal_distribution_thirds import NormalDistributionThirds
 from distributions.quadtree_distribution import QuadtreeDistribution
 from enums.distribution_type import *
@@ -38,6 +39,9 @@ class PointGenerator:
 
         elif distribution_type == DistributionType.DEVIATION:
             self.__distribution = DeviationDistribution()
+
+        elif distribution_type == DistributionType.MITCHELL:
+            self.__distribution = MitchellDistribution()
 
     def generate_points(self) -> list[Point2D]:
         return self.__distribution.generate_points(self.__image, self.__x_min, self.__x_max, self.__y_min, self.__y_max)

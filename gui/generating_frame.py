@@ -38,6 +38,10 @@ class GeneratingFrame(tk.Frame):
         self.__points_label = tk.Label(self, text="Vygenerované body uloženy do souboru:\n" + filename)
         self.__points_label.pack(pady=10)
 
+    def set_points_generated(self) -> None:
+        self.__points_label = tk.Label(self, text="Body byly vygenerovány.")
+        self.__points_label.pack(pady=10)
+
     def set_image_generated(self, generated_image: Image) -> None:
         self.__generated_image = generated_image
         self.__image_label.pack(pady=10)

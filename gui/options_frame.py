@@ -81,7 +81,8 @@ class OptionsFrame(tk.Frame):
             self.__distribution_menu = tk.OptionMenu(self, self.__distribution_string,
                                                      *[DistributionType.UNIFORM.value,
                                                        DistributionType.NORMAL_THIRDS.value,
-                                                       DistributionType.DEVIATION.value],
+                                                       DistributionType.DEVIATION.value,
+                                                       DistributionType.MITCHELL.value],
                                                      command=self.__controller.set_distribution)
             self.__distribution_menu.pack(pady=10, fill="x", expand=True)
 
@@ -91,7 +92,8 @@ class OptionsFrame(tk.Frame):
                                                        DistributionType.NORMAL_THIRDS.value,
                                                        DistributionType.LAPLACE_AREA.value,
                                                        DistributionType.LAPLACE_LENGTH.value,
-                                                       DistributionType.LAPLACE_GRADIENT.value],
+                                                       DistributionType.LAPLACE_GRADIENT.value,
+                                                       DistributionType.MITCHELL.value],
                                                      command=self.__controller.set_distribution)
             self.__distribution_menu.pack(pady=10, fill="x", expand=True)
 

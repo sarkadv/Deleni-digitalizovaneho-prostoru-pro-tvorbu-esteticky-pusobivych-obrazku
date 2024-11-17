@@ -1,5 +1,3 @@
-import math
-
 import scipy.stats as stats
 from distributions.a_distribution import *
 from geometry.point_2d import *
@@ -10,6 +8,7 @@ class UniformDistribution(ADistribution):
     POINT_COUNT_MULTIPLIER = 100_000
 
     def generate_points(self, image: ImageFile, x_min: int, x_max: int, y_min: int, y_max: int) -> list[Point2D]:
+        # náhodné proměnné diskrétního rovnoměrného rozdělení
         uniform_discrete_variable_x = stats.randint(low=x_min, high=x_max)
         uniform_discrete_variable_y = stats.randint(low=y_min, high=y_max)
 

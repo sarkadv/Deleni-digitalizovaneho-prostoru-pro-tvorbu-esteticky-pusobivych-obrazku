@@ -10,3 +10,4 @@ class DistributionType(ExtendedEnum):
     QUADTREE = 'Kvadrantový strom'
     DEVIATION = 'Dělení oblastí podle odchylky'
     NORMAL_THIRDS = 'Normální rozdělení - Pravidlo třetin'
+    MITCHELL = 'Mitchellův algoritmus'
