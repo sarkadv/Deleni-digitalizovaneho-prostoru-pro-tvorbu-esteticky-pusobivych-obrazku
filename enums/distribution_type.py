@@ -8,6 +8,6 @@ class DistributionType(ExtendedEnum):
     LAPLACE_LENGTH = 'Laplaceův operátor - Délka strany'
     LAPLACE_GRADIENT = 'Laplaceův operátor - Rozdíl barev vrcholů'
     QUADTREE = 'Kvadrantový strom'
-    DEVIATION = 'Dělení oblastí podle odchylky'
+    ERROR = 'Dělení oblastí podle chyby'
     NORMAL_THIRDS = 'Normální rozdělení - Pravidlo třetin'
     MITCHELL = 'Mitchellův algoritmus'

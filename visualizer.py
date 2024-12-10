@@ -42,6 +42,11 @@ class Visualizer:
                 # barva je vybrána samostatně pro každý region
                 region.draw_grid(context, border_width, (0.0, 0.0, 0.0), True)
 
+        elif self.__effect == EffectType.MULTIPLE_SHAPES:
+            for region in self.__regions:
+                # metoda implementována pouze pro Quadtree, pro ostatní teselace nemá smysl
+                region.draw_multiple_shapes(context)
+
         data = surface.get_data()
         image = Image.frombuffer("RGBA", (self.__image.width, self.__image.height), data, "raw", "BGRA", 0, 1)
         return image

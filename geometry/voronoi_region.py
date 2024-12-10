@@ -1,6 +1,5 @@
-import math
-
 from geometry.a_region import *
+from util.image_drawer import draw_circle
 from util.image_utils import find_complementary_color
 
 
@@ -15,27 +14,23 @@ class VoronoiRegion(ARegion):
         if len(self.get_vertices()) == 0:
             return
 
-        points = [(vertex.get_x(), vertex.get_y()) for vertex in self.get_vertices()]
-
-        context.move_to(*points[0])  # přesunutí na první bod
-
-        for point in points[1:]:    # nakreslení úseček mezi ostatními body
-            context.line_to(*point)
-        context.close_path()    # uzavření polygonu
-
         # nakreslení obrysu
         if not colorful:
-            context.set_source_rgb(*border_color_rgb)
-        else:
-            r, g, b, a = self.get_base_color()
-            context.set_source_rgb(*find_complementary_color((r, g, b)))
+            # všechny obrysy stejná barva
+            border_color = border_color_rgb + (1,)
 
-        context.set_line_width(border_width)
-        context.stroke()
+        else:
+            # obrys každé oblasti může být jiný
+            r, g, b, a = self.get_base_color()
+            border_color = find_complementary_color((r, g, b)) + (1,)
+
+        draw_polygon(context, self.get_vertices(), border_color, True)
 
         # nakreslení generátoru
-        context.arc(self.__generator.get_x(), self.__generator.get_y(), border_width * 1.5, 0, 2 * math.pi)
-        context.fill()
+        draw_circle(context, self.__generator, border_width * 1.5, border_color)
+
+    def draw_multiple_shapes(self, context: cairo.Context):
+        pass
 
     def get_generator(self) -> Point2D:
         return self.__generator

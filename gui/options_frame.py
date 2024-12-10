@@ -81,7 +81,7 @@ class OptionsFrame(tk.Frame):
             self.__distribution_menu = tk.OptionMenu(self, self.__distribution_string,
                                                      *[DistributionType.UNIFORM.value,
                                                        DistributionType.NORMAL_THIRDS.value,
-                                                       DistributionType.DEVIATION.value,
+                                                       DistributionType.ERROR.value,
                                                        DistributionType.MITCHELL.value],
                                                      command=self.__controller.set_distribution)
             self.__distribution_menu.pack(pady=10, fill="x", expand=True)
@@ -107,19 +107,26 @@ class OptionsFrame(tk.Frame):
 
         if tessellation == TessellationType.VORONOI:
             self.__effect_menu = tk.OptionMenu(self, self.__effect_string,
-                                               *EffectType.values(),
+                                               *[EffectType.BASIC.value,
+                                                 EffectType.GRID_ONE_COLOR.value,
+                                                 EffectType.GRID_COLORFUL.value],
                                                command=self.__controller.set_effect)
             self.__effect_menu.pack(pady=10, fill="x", expand=True)
 
         elif tessellation == TessellationType.DELAUNAY_FAST or tessellation == TessellationType.DELAUNAY_BETTER_COLORS:
             self.__effect_menu = tk.OptionMenu(self, self.__effect_string,
-                                               *EffectType.values(),
+                                               *[EffectType.BASIC.value,
+                                                 EffectType.GRID_ONE_COLOR.value,
+                                                 EffectType.GRID_COLORFUL.value],
                                                command=self.__controller.set_effect)
             self.__effect_menu.pack(pady=10, fill="x", expand=True)
 
         elif tessellation == TessellationType.QUADTREE:
             self.__effect_menu = tk.OptionMenu(self, self.__effect_string,
-                                               *EffectType.values(),
+                                               *[EffectType.BASIC.value,
+                                                 EffectType.GRID_ONE_COLOR.value,
+                                                 EffectType.GRID_COLORFUL.value,
+                                                 EffectType.MULTIPLE_SHAPES.value],
                                                command=self.__controller.set_effect)
             self.__effect_menu.pack(pady=10, fill="x", expand=True)
 

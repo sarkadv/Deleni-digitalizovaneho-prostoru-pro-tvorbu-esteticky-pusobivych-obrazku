@@ -5,6 +5,7 @@ import cairo
 from abc import ABC, abstractmethod
 
 from geometry.point_2d import *
+from util.image_drawer import draw_polygon
 
 
 class ARegion(ABC):
@@ -16,20 +17,7 @@ class ARegion(ABC):
         if len(self.get_vertices()) == 0:
             return
 
-        points = [(vertex.get_x(), vertex.get_y()) for vertex in self.get_vertices()]
-
-        # nakreslení výplně
-        context.set_source_rgba(*self.__base_color)
-        context.move_to(*points[0])  # přesunutí na první bod
-
-        for point in points[1:]:    # nakreslení úseček mezi ostatními body
-            context.line_to(*point)
-        context.close_path()    # uzavření polygonu
-
-        context.fill_preserve()
-
-        context.set_line_width(1)
-        context.stroke()
+        draw_polygon(context, self.__vertices, self.__base_color, False)
 
     @abstractmethod
     def draw_grid(self, context: cairo.Context, border_width: float,
@@ -37,11 +25,27 @@ class ARegion(ABC):
 
         pass
 
+    @abstractmethod
+    def draw_multiple_shapes(self, context: cairo.Context):
+        pass
+
     def get_vertices(self) -> list[Point2D]:
         return self.__vertices
 
     def get_base_color(self) -> Tuple[float, float, float, float]:
         return self.__base_color
+
+    def get_x_axis_length(self) -> int:
+        min_x = min([point.get_x() for point in self.__vertices])
+        max_x = max([point.get_x() for point in self.__vertices])
+
+        return max_x - min_x
+
+    def get_y_axis_length(self) -> int:
+        min_y = min([point.get_y() for point in self.__vertices])
+        max_y = max([point.get_y() for point in self.__vertices])
+
+        return max_y - min_y
 
     def set_base_color(self, base_color: Tuple[float, float, float, float]) -> None:
         if 0.0 <= all(base_color) <= 1.0:

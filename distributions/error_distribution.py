@@ -8,7 +8,7 @@ from distributions.uniform_distribution import UniformDistribution
 from util.image_utils import *
 
 
-class DeviationDistribution(ADistribution):
+class ErrorDistribution(ADistribution):
     MAX_STANDARD_DEVIATION = 0.15  # maximální směrodatná odchylka barev regionu
     MIN_AREA_SIZE = 0   # minimální obsah oblasti
 

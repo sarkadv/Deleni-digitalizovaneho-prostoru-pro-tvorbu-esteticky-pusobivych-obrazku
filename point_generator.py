@@ -1,4 +1,4 @@
-from distributions.deviation_distribution import DeviationDistribution
+from distributions.error_distribution import ErrorDistribution
 from distributions.laplace_distribution_area import LaplaceDistributionArea
 from distributions.laplace_distribution_gradient import LaplaceDistributionGradient
 from distributions.laplace_distribution_length import LaplaceDistributionLength
@@ -37,8 +37,8 @@ class PointGenerator:
         elif distribution_type == DistributionType.QUADTREE:
             self.__distribution = QuadtreeDistribution()
 
-        elif distribution_type == DistributionType.DEVIATION:
-            self.__distribution = DeviationDistribution()
+        elif distribution_type == DistributionType.ERROR:
+            self.__distribution = ErrorDistribution()
 
         elif distribution_type == DistributionType.MITCHELL:
             self.__distribution = MitchellDistribution()

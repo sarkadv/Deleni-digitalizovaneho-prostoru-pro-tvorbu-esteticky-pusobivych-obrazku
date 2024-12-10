@@ -4,6 +4,7 @@ import cairo
 
 from geometry.a_region import ARegion
 from geometry.point_2d import Point2D
+from util.image_drawer import draw_polygon
 from util.image_utils import find_complementary_color
 
 
@@ -17,20 +18,16 @@ class DelaunayRegion(ARegion):
         if len(self.get_vertices()) == 0:
             return
 
-        points = [(vertex.get_x(), vertex.get_y()) for vertex in self.get_vertices()]
-
-        context.move_to(*points[0])  # přesunutí na první bod
-
-        for point in points[1:]:    # nakreslení úseček mezi ostatními body
-            context.line_to(*point)
-        context.close_path()    # uzavření trojúhelníku
-
         # nakreslení obrysu
         if not colorful:
-            context.set_source_rgb(*border_color_rgb)
+            # všechny obrysy stejná barva
+            border_color = border_color_rgb + (1,)
         else:
+            # obrys každé oblasti může být jiný
             r, g, b, a = self.get_base_color()
-            context.set_source_rgb(*find_complementary_color((r, g, b)))
+            border_color = find_complementary_color((r, g, b)) + (1,)
 
-        context.set_line_width(border_width)
-        context.stroke()
+        draw_polygon(context, self.get_vertices(), border_color, True)
+
+    def draw_multiple_shapes(self, context: cairo.Context):
+        pass
