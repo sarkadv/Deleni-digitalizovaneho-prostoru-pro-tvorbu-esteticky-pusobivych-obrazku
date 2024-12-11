@@ -34,9 +34,11 @@ def find_image_mode_color(image: Image) -> Tuple[float, float, float]:
     return color_int_to_float(mode_color_int)
 
 
-def find_points_mode_color(image: Image, points: list[Point2D]) -> Tuple[float, float, float, float]:
+def find_points_most_common_color(image: Image, points: list[Point2D], most_common_count: int = 1) \
+        -> list[Tuple[float, float, float]]:
+
     if len(points) < 1:
-        return 0, 0, 0, 0
+        return [(0, 0, 0)]
 
     color_counts = Counter()
 
@@ -44,20 +46,24 @@ def find_points_mode_color(image: Image, points: list[Point2D]) -> Tuple[float, 
         if not is_point_in_image(image, point):
             continue
 
-        pixel = image.getpixel((point.get_x(), point.get_y())) + (255,)
+        pixel = image.getpixel((point.get_x(), point.get_y()))
         color_counts.update([pixel])
 
     if len(color_counts) < 1:
-        return 0, 0, 0, 0
+        return [(0, 0, 0)]
 
-    mode_color_int = color_counts.most_common(1)[0][0]
+    most_common_colors = color_counts.most_common(most_common_count)
+    result = []
 
-    return color_int_to_float(mode_color_int)
+    for color in most_common_colors:
+        result.append(color_int_to_float(color[0]))
+
+    return result
 
 
-def find_points_average_color(image: Image, points: list[Point2D]) -> Tuple[float, float, float, float]:
+def find_points_average_color(image: Image, points: list[Point2D]) -> Tuple[float, float, float]:
     if len(points) < 1:
-        return 0, 0, 0, 0
+        return 0, 0, 0
 
     sum_r = 0
     sum_g = 0
@@ -76,7 +82,7 @@ def find_points_average_color(image: Image, points: list[Point2D]) -> Tuple[floa
     sum_g = int(sum_g / (len(points)))
     sum_b = int(sum_b / (len(points)))
 
-    return color_int_to_float((sum_r, sum_g, sum_b, 255))
+    return color_int_to_float((sum_r, sum_g, sum_b))
 
 
 def is_point_in_image(image, point: Point2D):
@@ -162,13 +168,13 @@ def find_points_in_polygon(vertices: list[Point2D], point_count_limit: int, imag
     return points
 
 
-def get_rectangle_average_color(vertices: list[Point2D], image: Image) -> Tuple[float, float, float, float]:
+def get_rectangle_average_color(vertices: list[Point2D], image: Image) -> Tuple[float, float, float]:
     x_points, y_points = find_rectangle_points(vertices, False)
 
     # obdélník je moc malý
     if len(x_points) == 0 or len(y_points) == 0:
         r, g, b = image.getpixel((vertices[0].get_x(), vertices[0].get_y()))
-        return color_int_to_float((r, g, b, 255))
+        return color_int_to_float((r, g, b))
 
     sum_r = 0
     sum_g = 0
@@ -185,11 +191,11 @@ def get_rectangle_average_color(vertices: list[Point2D], image: Image) -> Tuple[
     sum_g = int(sum_g / (len(x_points) * len(y_points)))
     sum_b = int(sum_b / (len(x_points) * len(y_points)))
 
-    return color_int_to_float((sum_r, sum_g, sum_b, 255))
+    return color_int_to_float((sum_r, sum_g, sum_b))
 
 
 def get_rectangle_color_standard_deviation(vertices: list[Point2D], image: Image,
-                                           average_color: Tuple[float, float, float, float]) -> float:
+                                           average_color: Tuple[float, float, float]) -> float:
     x_points, y_points = find_rectangle_points(vertices, False)
 
     # obdélník je moc malý
@@ -214,12 +220,12 @@ def get_rectangle_color_standard_deviation(vertices: list[Point2D], image: Image
     return math.sqrt(sd_r) + math.sqrt(sd_g) + math.sqrt(sd_b)
 
 
-def get_point_color(image: Image, point: Point2D) -> Tuple[float, float, float, float]:
+def get_point_color(image: Image, point: Point2D) -> Tuple[float, float, float]:
     if is_point_in_image(image, point):
         r, g, b = image.getpixel((point.get_x(), point.get_y()))
-        return color_int_to_float((r, g, b, 255))
+        return color_int_to_float((r, g, b))
     else:
-        return color_int_to_float((0, 0, 0, 0))
+        return 0, 0, 0
 
 
 def crop_polygon_by_bounds(bounds: list[Tuple[float, float]],
@@ -277,3 +283,58 @@ def find_polygon_centroid(vertices: list[Point2D]) -> Point2D:
     centroid_y = int(centroid_y / len(vertices))
 
     return Point2D(centroid_x, centroid_y)
+
+
+def get_colors_difference(color1: Tuple[float, float, float],
+                          color2: Tuple[float, float, float]) -> float:
+    difference = 0
+    length = min(len(color1), len(color2))
+
+    for i in range(length):
+        difference += abs(color1[i] - color2[i])
+
+    return difference
+
+
+def get_colors_ratio(image: Image, points: list[Point2D], color1: Tuple[float, float, float],
+                     color2: Tuple[float, float, float]) -> float:
+
+    color1_count = 1
+    color2_count = 1
+
+    for point in points:
+        color = image.getpixel((point.get_x(), point.get_y()))
+
+        color1_difference = get_colors_difference(color1, color)
+        color2_difference = get_colors_difference(color2, color)
+
+        # zvýšení výskytu barvy, ke které je zkoumaný pixel blíže
+        if color1_difference < color2_difference:
+            color1_count += 1
+        else:
+            color2_count += 1
+
+    # vrácení poměru pixelů bližších k druhé barvě než k té první
+    return color2_count / color1_count
+
+
+def make_colors_more_different(base_color: Tuple[float, float, float],
+                               different_color: Tuple[float, float, float],
+                               difference_multiplier: float) -> Tuple[float, float, float]:
+
+    # nová barva je kopie rozdílné barvy od základní
+    new_color = list(different_color)
+    length = min(len(base_color), len(different_color))
+
+    for i in range(length):
+        # rozdíl mezi původní a rozdílnou barvou
+        difference = base_color[i] - different_color[i]
+
+        # zvětšení rozdílu mezi novou a původní barvou
+        new_color[i] = different_color[i] - difference * difference_multiplier
+
+        # nová barva musí mít složky v intervalu 0-1
+        new_color[i] = min(max(new_color[i], 0), 1)
+
+    return tuple(new_color)
+

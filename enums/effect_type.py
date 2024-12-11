@@ -7,3 +7,4 @@ class EffectType(ExtendedEnum):
     GRID_ONE_COLOR = 'Grid - Jednobarevný'
     GRID_COLORFUL = 'Grid - Vícebarevný'
     MULTIPLE_SHAPES = 'Různé tvary oblastí'
+    RECTANGLE_WITH_OVAL = 'Obdélníkové oblasti s ovály'

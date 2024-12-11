@@ -3,15 +3,22 @@ import random
 from typing import Tuple, Any
 
 import cairo
+from PIL import Image
 
 from geometry.a_region import ARegion
 from geometry.point_2d import Point2D
 from util.image_drawer import draw_polygon, draw_oval
-from util.image_utils import find_complementary_color, find_polygon_centroid
+from util.image_utils import find_complementary_color, find_polygon_centroid, find_rectangle_points, get_colors_ratio, \
+    find_points_most_common_color, make_colors_more_different
 
 
 class QuadtreeRegion(ARegion):
-    def __init__(self, vertices: list[Point2D], base_color: Tuple[float, float, float, float]):
+
+    MIN_COLORS_RATIO = 0.25
+    MAX_COLORS_RATIO = 2
+    COLORS_DIFFERENCE_MULTIPLIER = 1.75
+
+    def __init__(self, vertices: list[Point2D], base_color: Tuple[float, float, float]):
         super().__init__(vertices, base_color)
         self.__split = False  # má oblast potomky?
         self.__children = [[None, None],
@@ -61,8 +68,8 @@ class QuadtreeRegion(ARegion):
                 border_color = border_color_rgb + (1,)
             else:
                 # obrys každé oblasti může být jiný
-                r, g, b, a = region.get_base_color()
-                border_color = find_complementary_color((r, g, b)) + (1,)
+                r, g, b = region.get_base_color()
+                border_color = find_complementary_color((r, g, b))
 
             draw_polygon(context, region.get_vertices(), border_color, True)
 
@@ -89,52 +96,90 @@ class QuadtreeRegion(ARegion):
 
             if random_number <= 25:
                 # obdélník
-                self.__draw_rectangle_shape(context, region)
+                draw_polygon(context, region.get_vertices(), region.get_base_color(), False)
+
             elif random_number <= 50:
                 # ovál
-                self.__draw_oval_shape(context, region)
+                center = find_polygon_centroid(region.get_vertices())
+                radius_x = region.get_x_axis_length() / 2
+                radius_y = region.get_y_axis_length() / 2
+
+                draw_oval(context, center, radius_x, radius_y, region.get_base_color())
+
             elif random_number <= 75:
                 # trojúhelník
-                self.__draw_triangle_shape(context, region)
+                vertices = copy.deepcopy(region.get_vertices())
+
+                # odstranění náhodného bodu ze čtyř -> vznikne trojúhelník
+                random_index = random.randint(1, len(vertices) - 1)
+                del vertices[random_index]
+
+                draw_polygon(context, vertices, region.get_base_color(), False)
+
             else:
                 # kosodélník
-                self.__draw_rhomboid_shape(context, region)
+                vertices = []
 
-    def __draw_rectangle_shape(self, context: cairo.Context, region: 'QuadtreeRegion') -> None:
-        draw_polygon(context, region.get_vertices(), region.get_base_color(), False)
+                # nalezení středů všech stran oblasti -> vznikne kosodélník
+                for i in range(len(region.get_vertices())):
+                    vertex = region.get_vertices()[i]
 
-    def __draw_oval_shape(self, context: cairo.Context, region: 'QuadtreeRegion') -> None:
-        center = find_polygon_centroid(region.get_vertices())
-        radius_x = region.get_x_axis_length() / 2
-        radius_y = region.get_y_axis_length() / 2
+                    if i == len(region.get_vertices()) - 1:
+                        next_vertex = region.get_vertices()[0]
+                    else:
+                        next_vertex = region.get_vertices()[i + 1]
 
-        draw_oval(context, center, radius_x, radius_y, region.get_base_color())
+                    center = vertex.line_center(next_vertex)
+                    vertices.append(center)
 
-    def __draw_triangle_shape(self, context: cairo.Context, region: 'QuadtreeRegion') -> None:
-        vertices = copy.deepcopy(region.get_vertices())
+                draw_polygon(context, vertices, region.get_base_color(), False)
 
-        # odstranění náhodného bodu ze čtyř -> vznikne trojúhelník
-        random_index = random.randint(1, len(vertices) - 1)
-        del vertices[random_index]
+    def draw_rectangle_with_oval(self, context: cairo.Context, image: Image):
+        stack = [self]
 
-        draw_polygon(context, vertices, region.get_base_color(), False)
+        while len(stack) > 0:
+            region = stack.pop()
 
-    def __draw_rhomboid_shape(self, context: cairo.Context, region: 'QuadtreeRegion') -> None:
-        vertices = []
+            if len(region.get_vertices()) == 0:
+                continue
 
-        # nalezení středů všech stran oblasti -> vznikne kosodélník
-        for i in range(len(region.get_vertices())):
-            vertex = region.get_vertices()[i]
+            # pokud má region potomky, vložit je do zásobníku
+            if region.__split:
+                for i in range(len(region.__children)):
+                    for j in range(len(region.__children[0])):
+                        child = region.__children[i][j]
+                        stack.append(child)
 
-            if i == len(region.get_vertices()) - 1:
-                next_vertex = region.get_vertices()[0]
-            else:
-                next_vertex = region.get_vertices()[i + 1]
+                # vykreslit pouze koncové regiony bez potomků - region s potomky je stejně překrytý
+                continue
 
-            center = vertex.line_center(next_vertex)
-            vertices.append(center)
+            points_x, points_y = find_rectangle_points(region.get_vertices(), False)
+            points_2D = [Point2D(x, y) for x, y in zip(points_x, points_y)]
 
-        draw_polygon(context, vertices, region.get_base_color(), False)
+            most_common_colors = find_points_most_common_color(image, points_2D, 2)
+
+            # poměr pixelů bližších k druhé barvě než k té první
+            colors_ratio = get_colors_ratio(image, points_2D, most_common_colors[0], most_common_colors[1])
+
+            # změna druhé barvy, aby byla více odlišná od první
+            contrasting_color = make_colors_more_different(most_common_colors[0], most_common_colors[1],
+                                                           self.COLORS_DIFFERENCE_MULTIPLIER)
+
+            # poměr mezi čísly 0.25 až 2, aby nebyl ovál příliš malý, ani velký (přesahující oblast)
+            colors_ratio = max(colors_ratio, self.MIN_COLORS_RATIO)
+            colors_ratio = min(colors_ratio, self.MAX_COLORS_RATIO)
+
+            # nakreslení obdélníku
+            draw_polygon(context, region.get_vertices(), most_common_colors[0], False)
+
+            center = find_polygon_centroid(region.get_vertices())
+
+            # defaultní průměr je polovina oblasti -> dále vynásobeno poměrem barev pro zmenšení / zvětšení
+            radius_x = (region.get_x_axis_length() / 4) * colors_ratio
+            radius_y = (region.get_y_axis_length() / 4) * colors_ratio
+
+            # vykreslení oválu nad obdélníkem
+            draw_oval(context, center, radius_x, radius_y, contrasting_color)
 
     def get_children(self) -> list[list[Any]]:
         return self.__children

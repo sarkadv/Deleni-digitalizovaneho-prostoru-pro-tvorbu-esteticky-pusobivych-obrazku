@@ -126,7 +126,8 @@ class OptionsFrame(tk.Frame):
                                                *[EffectType.BASIC.value,
                                                  EffectType.GRID_ONE_COLOR.value,
                                                  EffectType.GRID_COLORFUL.value,
-                                                 EffectType.MULTIPLE_SHAPES.value],
+                                                 EffectType.MULTIPLE_SHAPES.value,
+                                                 EffectType.RECTANGLE_WITH_OVAL.value],
                                                command=self.__controller.set_effect)
             self.__effect_menu.pack(pady=10, fill="x", expand=True)
 

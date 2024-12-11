@@ -48,5 +48,5 @@ class ADelaunayTessellation(ATessellation):
         return regions
 
     @abstractmethod
-    def get_base_color(self, image: ImageFile, vertices: list[Point2D]) -> Tuple[float, float, float, float]:
+    def get_base_color(self, image: ImageFile, vertices: list[Point2D]) -> Tuple[float, float, float]:
         pass

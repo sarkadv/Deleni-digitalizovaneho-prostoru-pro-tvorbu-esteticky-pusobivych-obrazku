@@ -1,5 +1,6 @@
 from geometry.a_region import ARegion
 from enums.effect_type import *
+from util.image_drawer import draw_background
 from util.image_utils import *
 
 
@@ -43,9 +44,16 @@ class Visualizer:
                 region.draw_grid(context, border_width, (0.0, 0.0, 0.0), True)
 
         elif self.__effect == EffectType.MULTIPLE_SHAPES:
+            background_color = find_image_mode_color(self.__image)
+            draw_background(context, self.__image.width, self.__image.height, background_color)
+
             for region in self.__regions:
                 # metoda implementována pouze pro Quadtree, pro ostatní teselace nemá smysl
                 region.draw_multiple_shapes(context)
+
+        elif self.__effect == EffectType.RECTANGLE_WITH_OVAL:
+            for region in self.__regions:
+                region.draw_rectangle_with_oval(context, self.__image)
 
         data = surface.get_data()
         image = Image.frombuffer("RGBA", (self.__image.width, self.__image.height), data, "raw", "BGRA", 0, 1)

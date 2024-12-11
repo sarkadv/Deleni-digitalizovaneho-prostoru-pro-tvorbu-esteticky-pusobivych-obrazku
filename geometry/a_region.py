@@ -4,12 +4,14 @@ import cairo
 
 from abc import ABC, abstractmethod
 
+from PIL import Image
+
 from geometry.point_2d import *
 from util.image_drawer import draw_polygon
 
 
 class ARegion(ABC):
-    def __init__(self, vertices: list[Point2D], base_color: Tuple[float, float, float, float]):
+    def __init__(self, vertices: list[Point2D], base_color: Tuple[float, float, float]):
         self.__vertices = vertices
         self.__base_color = base_color
 
@@ -29,10 +31,14 @@ class ARegion(ABC):
     def draw_multiple_shapes(self, context: cairo.Context):
         pass
 
+    @abstractmethod
+    def draw_rectangle_with_oval(self, context: cairo.Context, image: Image):
+        pass
+
     def get_vertices(self) -> list[Point2D]:
         return self.__vertices
 
-    def get_base_color(self) -> Tuple[float, float, float, float]:
+    def get_base_color(self) -> Tuple[float, float, float]:
         return self.__base_color
 
     def get_x_axis_length(self) -> int:
@@ -47,6 +53,6 @@ class ARegion(ABC):
 
         return max_y - min_y
 
-    def set_base_color(self, base_color: Tuple[float, float, float, float]) -> None:
+    def set_base_color(self, base_color: Tuple[float, float, float]) -> None:
         if 0.0 <= all(base_color) <= 1.0:
             self.__base_color = base_color
