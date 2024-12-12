@@ -1,7 +1,8 @@
 from geometry.quadtree_region import QuadtreeRegion
 from tessellations.a_tessellation import *
 from geometry.a_region import *
-from util.image_utils import *
+from util.color_utils import get_rectangle_average_color, get_rectangle_color_standard_deviation
+from util.geometry_utils import *
 
 
 class QuadtreeTessellation(ATessellation):
@@ -15,7 +16,7 @@ class QuadtreeTessellation(ATessellation):
         stack = []
 
         # pole points musí mít vždy body v pořadí od NW a poté po směru hodinových ručiček
-        first_region = QuadtreeRegion(points, (0, 0, 0, 0))  # region obsahující celý obrázek
+        first_region = QuadtreeRegion(points, (0, 0, 0))  # region obsahující celý obrázek
         stack.append(first_region)
 
         while len(stack) > 0:

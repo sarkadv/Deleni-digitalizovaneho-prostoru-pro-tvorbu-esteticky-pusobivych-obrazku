@@ -5,8 +5,8 @@ from PIL import Image
 
 from geometry.a_region import ARegion
 from geometry.point_2d import Point2D
+from util.color_utils import find_complementary_color
 from util.image_drawer import draw_polygon
-from util.image_utils import find_complementary_color
 
 
 class DelaunayRegion(ARegion):
@@ -25,8 +25,7 @@ class DelaunayRegion(ARegion):
             border_color = border_color_rgb
         else:
             # obrys každé oblasti může být jiný
-            r, g, b = self.get_base_color()
-            border_color = find_complementary_color((r, g, b))
+            border_color = find_complementary_color(self.get_base_color())
 
         draw_polygon(context, self.get_vertices(), border_color, True)
 

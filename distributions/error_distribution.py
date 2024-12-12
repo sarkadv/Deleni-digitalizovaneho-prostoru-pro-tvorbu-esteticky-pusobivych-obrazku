@@ -1,3 +1,4 @@
+import math
 import sys
 
 import numpy as np
@@ -5,7 +6,8 @@ from scipy.spatial import Voronoi
 
 from distributions.a_distribution import *
 from distributions.uniform_distribution import UniformDistribution
-from util.image_utils import *
+from util.color_utils import find_points_average_color
+from util.geometry_utils import *
 
 
 class ErrorDistribution(ADistribution):

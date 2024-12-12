@@ -1,6 +1,6 @@
 from geometry.a_region import *
+from util.color_utils import find_complementary_color
 from util.image_drawer import draw_circle
-from util.image_utils import find_complementary_color
 
 
 class VoronoiRegion(ARegion):
@@ -21,8 +21,7 @@ class VoronoiRegion(ARegion):
 
         else:
             # obrys každé oblasti může být jiný
-            r, g, b = self.get_base_color()
-            border_color = find_complementary_color((r, g, b))
+            border_color = find_complementary_color(self.get_base_color())
 
         draw_polygon(context, self.get_vertices(), border_color, True)
 

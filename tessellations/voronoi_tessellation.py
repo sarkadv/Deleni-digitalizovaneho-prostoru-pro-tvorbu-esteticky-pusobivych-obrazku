@@ -3,7 +3,7 @@ from scipy.spatial import Voronoi
 from tessellations.a_tessellation import *
 from geometry.voronoi_region import *
 from geometry.a_region import *
-from util.image_utils import *
+from util.geometry_utils import *
 
 
 class VoronoiTessellation(ATessellation):
@@ -27,7 +27,7 @@ class VoronoiTessellation(ATessellation):
         coordinates = [[point.get_x(), point.get_y()] for point in points]
 
         # hranice obrázku
-        bounds = [(0, 0), (0, image.height - 1), (image.width - 1, image.height - 1), (image.width - 1, 0)]
+        bounds = [(0, 0), (0, image.height), (image.width, image.height), (image.width, 0)]
 
         voronoi = Voronoi(coordinates)
 

@@ -2,7 +2,8 @@ from PIL import ImageFile
 
 from distributions.a_laplace_distribution import ALaplaceDistribution
 from geometry.point_2d import *
-from util.image_utils import find_points_average_color, get_point_color, find_polygon_centroid, get_colors_difference
+from util.color_utils import find_points_average_color, get_point_color, get_colors_difference
+from util.geometry_utils import find_polygon_centroid
 
 
 class LaplaceDistributionGradient(ALaplaceDistribution):

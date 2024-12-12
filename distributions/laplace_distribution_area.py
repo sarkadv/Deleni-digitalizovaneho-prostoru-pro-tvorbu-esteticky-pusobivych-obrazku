@@ -2,7 +2,7 @@ from PIL import ImageFile
 
 from distributions.a_laplace_distribution import ALaplaceDistribution
 from geometry.point_2d import *
-from util.image_utils import find_polygon_centroid
+from util.geometry_utils import find_polygon_centroid
 
 
 class LaplaceDistributionArea(ALaplaceDistribution):

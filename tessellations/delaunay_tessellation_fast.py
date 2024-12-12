@@ -1,7 +1,8 @@
 from PIL.ImageFile import ImageFile
 
 from tessellations.a_delaunay_tessellation import ADelaunayTessellation
-from util.image_utils import *
+from util.color_utils import find_points_most_common_color
+from util.geometry_utils import *
 
 
 class DelaunayTessellationFast(ADelaunayTessellation):

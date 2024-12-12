@@ -7,16 +7,17 @@ from PIL import Image
 
 from geometry.a_region import ARegion
 from geometry.point_2d import Point2D
+from util.color_utils import find_complementary_color, find_points_most_common_color, get_colors_ratio, \
+    make_colors_more_different
 from util.image_drawer import draw_polygon, draw_oval
-from util.image_utils import find_complementary_color, find_polygon_centroid, find_rectangle_points, get_colors_ratio, \
-    find_points_most_common_color, make_colors_more_different
+from util.geometry_utils import find_polygon_centroid, find_rectangle_points
 
 
 class QuadtreeRegion(ARegion):
 
     MIN_COLORS_RATIO = 0.25
     MAX_COLORS_RATIO = 2
-    COLORS_DIFFERENCE_MULTIPLIER = 1.75
+    COLORS_DIFFERENCE_MULTIPLIER = 1.5
 
     def __init__(self, vertices: list[Point2D], base_color: Tuple[float, float, float]):
         super().__init__(vertices, base_color)
@@ -65,11 +66,10 @@ class QuadtreeRegion(ARegion):
             # nakreslení obrysu
             if not colorful:
                 # všechny obrysy stejná barva
-                border_color = border_color_rgb + (1,)
+                border_color = border_color_rgb
             else:
                 # obrys každé oblasti může být jiný
-                r, g, b = region.get_base_color()
-                border_color = find_complementary_color((r, g, b))
+                border_color = find_complementary_color(region.get_base_color())
 
             draw_polygon(context, region.get_vertices(), border_color, True)
 
@@ -158,7 +158,12 @@ class QuadtreeRegion(ARegion):
 
             most_common_colors = find_points_most_common_color(image, points_2D, 2)
             rectangle_color = most_common_colors[0]
-            oval_color = most_common_colors[1]
+
+            if len(most_common_colors) < 2:
+                # celá oblast má 1 barvu
+                oval_color = rectangle_color
+            else:
+                oval_color = most_common_colors[1]
 
             # poměr pixelů bližších k druhé barvě než k té první
             colors_ratio = get_colors_ratio(image, points_2D, rectangle_color, oval_color)

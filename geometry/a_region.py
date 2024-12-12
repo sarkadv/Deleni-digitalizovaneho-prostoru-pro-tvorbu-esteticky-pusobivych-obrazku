@@ -9,9 +9,10 @@ from PIL import Image
 from shapely import Polygon
 
 from geometry.point_2d import *
+from util.color_utils import find_points_most_common_color, get_point_color, get_colors_difference, \
+    make_colors_more_different, get_colors_ratio
 from util.image_drawer import draw_polygon, draw_polygon_with_gradient
-from util.image_utils import get_colors_difference, get_point_color, find_points_in_polygon, \
-    find_points_most_common_color, make_colors_more_different, get_colors_ratio
+from util.geometry_utils import find_points_in_polygon
 
 
 class ARegion(ABC):

@@ -6,7 +6,7 @@ from scipy.spatial import Delaunay
 from geometry.a_region import ARegion
 from geometry.delaunay_region import DelaunayRegion
 from tessellations.a_tessellation import ATessellation
-from util.image_utils import *
+from util.geometry_utils import *
 
 
 class ADelaunayTessellation(ATessellation):

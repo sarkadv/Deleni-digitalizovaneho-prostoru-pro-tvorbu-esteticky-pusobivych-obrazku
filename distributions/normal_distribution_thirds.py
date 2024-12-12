@@ -3,7 +3,7 @@ from PIL import ImageFile
 
 from distributions.a_distribution import ADistribution
 from geometry.point_2d import *
-from util.image_utils import is_point_in_image
+from util.geometry_utils import is_point_in_image
 
 
 class NormalDistributionThirds(ADistribution):
