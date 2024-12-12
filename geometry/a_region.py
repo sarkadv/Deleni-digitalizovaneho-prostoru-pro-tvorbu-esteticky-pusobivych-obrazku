@@ -17,6 +17,8 @@ from util.image_utils import get_colors_difference, get_point_color, find_points
 class ARegion(ABC):
 
     COLORS_DIFFERENCE_MULTIPLIER = 1.5
+    MIN_COLORS_RATIO = 0.2
+    MAX_COLORS_RATIO = 0.8
 
     def __init__(self, vertices: list[Point2D], base_color: Tuple[float, float, float]):
         self.__vertices = vertices
@@ -88,8 +90,8 @@ class ARegion(ABC):
         # poměr druhé barvy k první
         colors_ratio = get_colors_ratio(image, points, start_color, end_color)
         colors_ratio = colors_ratio / (colors_ratio + 1)    # normalizace na interval 0-1
-        colors_ratio = max(colors_ratio, 0.2)
-        colors_ratio = min(colors_ratio, 0.8)
+        colors_ratio = max(colors_ratio, self.MIN_COLORS_RATIO)
+        colors_ratio = min(colors_ratio, self.MAX_COLORS_RATIO)
 
         # vykreslení polygonu s gradientem
         draw_polygon_with_gradient(context, self.__vertices, start_vertex, end_vertex, start_color,

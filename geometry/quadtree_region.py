@@ -157,20 +157,21 @@ class QuadtreeRegion(ARegion):
             points_2D = [Point2D(x, y) for x, y in zip(points_x, points_y)]
 
             most_common_colors = find_points_most_common_color(image, points_2D, 2)
+            rectangle_color = most_common_colors[0]
+            oval_color = most_common_colors[1]
 
             # poměr pixelů bližších k druhé barvě než k té první
-            colors_ratio = get_colors_ratio(image, points_2D, most_common_colors[0], most_common_colors[1])
+            colors_ratio = get_colors_ratio(image, points_2D, rectangle_color, oval_color)
 
             # změna druhé barvy, aby byla více odlišná od první
-            contrasting_color = make_colors_more_different(most_common_colors[0], most_common_colors[1],
-                                                           self.COLORS_DIFFERENCE_MULTIPLIER)
+            oval_color = make_colors_more_different(rectangle_color, oval_color, self.COLORS_DIFFERENCE_MULTIPLIER)
 
             # poměr mezi čísly 0.25 až 2, aby nebyl ovál příliš malý, ani velký (přesahující oblast)
             colors_ratio = max(colors_ratio, self.MIN_COLORS_RATIO)
             colors_ratio = min(colors_ratio, self.MAX_COLORS_RATIO)
 
             # nakreslení obdélníku
-            draw_polygon(context, region.get_vertices(), most_common_colors[0], False)
+            draw_polygon(context, region.get_vertices(), rectangle_color, False)
 
             center = find_polygon_centroid(region.get_vertices())
 
@@ -179,7 +180,7 @@ class QuadtreeRegion(ARegion):
             radius_y = (region.get_y_axis_length() / 4) * colors_ratio
 
             # vykreslení oválu nad obdélníkem
-            draw_oval(context, center, radius_x, radius_y, contrasting_color)
+            draw_oval(context, center, radius_x, radius_y, oval_color)
 
     def get_children(self) -> list[list[Any]]:
         return self.__children
