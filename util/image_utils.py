@@ -320,7 +320,8 @@ def get_colors_ratio(image: Image, points: list[Point2D], color1: Tuple[float, f
 
 def make_colors_more_different(base_color: Tuple[float, float, float],
                                different_color: Tuple[float, float, float],
-                               difference_multiplier: float) -> Tuple[float, float, float]:
+                               difference_multiplier: float,
+                               min_difference: float = 0.03) -> Tuple[float, float, float]:
 
     # nová barva je kopie rozdílné barvy od základní
     new_color = list(different_color)
@@ -329,6 +330,12 @@ def make_colors_more_different(base_color: Tuple[float, float, float],
     for i in range(length):
         # rozdíl mezi původní a rozdílnou barvou
         difference = base_color[i] - different_color[i]
+
+        if abs(difference) < min_difference:
+            if difference < 0:
+                difference = -min_difference
+            else:
+                difference = min_difference
 
         # zvětšení rozdílu mezi novou a původní barvou
         new_color[i] = different_color[i] - difference * difference_multiplier

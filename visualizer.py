@@ -55,6 +55,10 @@ class Visualizer:
             for region in self.__regions:
                 region.draw_rectangle_with_oval(context, self.__image)
 
+        elif self.__effect == EffectType.GRADIENTS:
+            for region in self.__regions:
+                region.draw_gradients(context, self.__image)
+
         data = surface.get_data()
         image = Image.frombuffer("RGBA", (self.__image.width, self.__image.height), data, "raw", "BGRA", 0, 1)
         return image
