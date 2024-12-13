@@ -12,7 +12,7 @@ from geometry.point_2d import *
 from util.color_utils import find_points_most_common_color, get_point_color, get_colors_difference, \
     make_colors_more_different, get_colors_ratio
 from util.image_drawer import draw_polygon, draw_polygon_with_gradient
-from util.geometry_utils import find_points_in_polygon
+from util.geometry_utils import find_points_in_polygon, split_polygon
 
 
 class ARegion(ABC):
@@ -43,60 +43,53 @@ class ARegion(ABC):
         pass
 
     def draw_gradients(self, context: cairo.Context, image: Image) -> None:
-        # nalezení bodů v polygonu
-        vertices_polygon_format = [[vertex.get_x(), vertex.get_y()] for vertex in self.__vertices]
-        region_chosen_points_count = Polygon(vertices_polygon_format).area / 2
-        points = find_points_in_polygon(self.__vertices, region_chosen_points_count, image)
+        polygons = split_polygon(self.__vertices)
 
-        # nalezení 2 nejčastějších barev v polygonu
-        most_common_colors = find_points_most_common_color(image, points, 2)
-        start_color = most_common_colors[0]
+        if len(polygons) < 2:
+            # nedošlo k rozdělení polygonu (např. polygon moc malý)
+            draw_polygon(context, self.__vertices, self.__base_color, False)
+            return
 
-        # jestliže polygon obsahuje jen 1 barvu, druhá barva bude stejná
-        if len(most_common_colors) < 2:
-            end_color = start_color
-        else:
-            end_color = most_common_colors[1]
+        polygon1 = polygons[0]
+        polygon2 = polygons[1]
 
-        # nalezení vrcholu polygonu, který má nejbližší barvu k té první
-        start_color_difference = sys.maxsize
+        # nalezení všech bodů v polygonech - jinak gradienty vytváří příliš rušivé nepřesnosti (díry)
+        points1 = find_points_in_polygon(polygon1, -1, image)
+        points2 = find_points_in_polygon(polygon2, -1, image)
+
+        if len(points1) == 0 or len(points2) == 0:
+            # nenalezeny žádné body alespoň v jednom z polygonů (např. polygon moc malý)
+            draw_polygon(context, self.__vertices, self.__base_color, False)
+            return
+
+        # nalezení nejčastějších barev v polygonech
+        start_color = find_points_most_common_color(image, points1)[0]
+        end_color = find_points_most_common_color(image, points2)[0]
+
+        # nalezení nejvzdálenějších vrcholů (každý z jednoho polygonu)
+        max_distance = -sys.maxsize
         start_vertex = None
-
-        for vertex in self.__vertices:
-            vertex_color = get_point_color(image, vertex)
-            difference = get_colors_difference(vertex_color, start_color)
-
-            if difference < start_color_difference:
-                start_color_difference = difference
-                start_vertex = vertex
-
-        # nalezení vrcholu polygonu, který má nejbližší barvu k té druhé (nesmí být stejný vrchol jako první)
-        end_color_difference = sys.maxsize
         end_vertex = None
 
-        for vertex in self.__vertices:
-            if vertex is start_vertex:
+        for vertex1 in polygon1:
+            if vertex1 not in self.__vertices:
+                # pouze vrcholy původního polygonu
                 continue
 
-            vertex_color = get_point_color(image, vertex)
-            difference = get_colors_difference(vertex_color, end_color)
+            for vertex2 in polygon2:
+                if vertex2 not in self.__vertices:
+                    # pouze vrcholy původního polygonu
+                    continue
 
-            if difference < end_color_difference:
-                end_color_difference = difference
-                end_vertex = vertex
+                distance = vertex1.euclidean_distance(vertex2)
 
-        # druhá barva mírně pozměněná
-        end_color = make_colors_more_different(start_color, end_color, self.COLORS_DIFFERENCE_MULTIPLIER)
-
-        # poměr druhé barvy k první
-        colors_ratio = get_colors_ratio(image, points, start_color, end_color)
-        colors_ratio = colors_ratio / (colors_ratio + 1)    # normalizace na interval 0-1
-        colors_ratio = max(colors_ratio, self.MIN_COLORS_RATIO)
-        colors_ratio = min(colors_ratio, self.MAX_COLORS_RATIO)
+                if distance > max_distance:
+                    max_distance = distance
+                    start_vertex = vertex1
+                    end_vertex = vertex2
 
         # vykreslení polygonu s gradientem
-        draw_polygon_with_gradient(context, self.__vertices, start_vertex, end_vertex, start_color,
-                                   end_color, 1 - colors_ratio)
+        draw_polygon_with_gradient(context, self.__vertices, start_vertex, end_vertex, start_color, end_color)
 
     def get_vertices(self) -> list[Point2D]:
         return self.__vertices

@@ -51,16 +51,11 @@ def draw_oval(context: cairo.Context, center: Point2D, radius_x: float, radius_y
 
 def draw_polygon_with_gradient(context: cairo.Context, vertices: list[Point2D], start_vertex: Point2D,
                                end_vertex: Point2D, start_color: Tuple[float, float, float],
-                               end_color: Tuple[float, float, float], ratio: float) -> None:
+                               end_color: Tuple[float, float, float]) -> None:
 
     gradient = cairo.LinearGradient(start_vertex.get_x(), start_vertex.get_y(), end_vertex.get_x(), end_vertex.get_y())
 
     gradient.add_color_stop_rgb(0, start_color[0], start_color[1], start_color[2])  # počátek gradientu
-
-    # místo gradientu, které má barvu průměru obou barev, posunuté parametrem ratio
-    average_color = ((start_color[0] + end_color[0]) / 2, (start_color[1] + end_color[1]) / 2, (start_color[2] + end_color[2]) / 2)
-    gradient.add_color_stop_rgb(ratio, average_color[0], average_color[1], average_color[2])
-
     gradient.add_color_stop_rgb(1, end_color[0], end_color[1], end_color[2])  # konec gradientu
 
     points = [(vertex.get_x(), vertex.get_y()) for vertex in vertices]

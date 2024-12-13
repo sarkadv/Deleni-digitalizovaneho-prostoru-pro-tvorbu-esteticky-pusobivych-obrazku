@@ -1,9 +1,13 @@
+import copy
 import random
+import sys
 from typing import Tuple
 
 import PIL.Image as Image
+import numpy as np
+from scipy.spatial._qhull import ConvexHull
 
-from shapely import Polygon
+from shapely import Polygon, LineString
 from shapely.geometry import Point, MultiPoint
 
 from geometry.point_2d import Point2D
@@ -132,3 +136,63 @@ def find_polygon_centroid(vertices: list[Point2D]) -> Point2D:
     centroid_y = int(centroid_y / len(vertices))
 
     return Point2D(centroid_x, centroid_y)
+
+
+def find_polygon_longest_side(vertices: list[Point2D]) -> Tuple[Point2D, Point2D]:
+    max_distance = -sys.maxsize
+    max_distance_vertices = (None, None)
+
+    for i in range(len(vertices)):
+        vertex1 = vertices[i]
+        vertex2 = vertices[(i + 1) % len(vertices)]
+
+        distance = vertex1.euclidean_distance(vertex2)
+
+        if distance > max_distance:
+            max_distance = distance
+            max_distance_vertices = (vertex1, vertex2)
+
+    return max_distance_vertices
+
+
+def split_polygon(vertices: list[Point2D]) -> list[list[Point2D]]:
+    # nalezení středu nejdelší strany polygonu
+    longest_side = find_polygon_longest_side(vertices)
+    center1 = longest_side[0].line_center(longest_side[1])
+
+    # nalezení středu strany, který je nejdále od prvního středu
+    center_max_distance = -sys.maxsize
+    center2 = None
+
+    for i in range(len(vertices)):
+        vertex1 = vertices[i]
+        vertex2 = vertices[(i + 1) % len(vertices)]
+
+        center = vertex1.line_center(vertex2)   # střed aktuální strany
+        distance = center.euclidean_distance(center1)   # vzdálenost aktuálního středu od prvního středu
+
+        if distance > center_max_distance:
+            center_max_distance = distance
+            center2 = center
+
+    polygon = Polygon([[vertex.get_x(), vertex.get_y()] for vertex in vertices])
+    line = LineString([[center1.get_x(), center1.get_y()], [center2.get_x(), center2.get_y()]]) # dělicí přímka
+
+    # rozdělení polygonu dělicí přímkou
+    split_polygons = []
+    parts = polygon.difference(line.buffer(1))
+
+    if parts.geom_type == "MultiPolygon":
+        # úspěšné rozdělení na 2 polygony
+        for geom in parts.geoms:
+            split_polygons.append(list(geom.exterior.coords)[:-1])
+    else:
+        # přímka nerozdělila polygon (např. polygon příliš malý)
+        return [vertices]   # vrácení původního polygonu
+
+    result = []
+    for polygon in split_polygons:
+        # rozdělené polygony do správného formátu
+        result.append([Point2D(round(vertex[0]), round(vertex[1])) for vertex in polygon])
+
+    return result
