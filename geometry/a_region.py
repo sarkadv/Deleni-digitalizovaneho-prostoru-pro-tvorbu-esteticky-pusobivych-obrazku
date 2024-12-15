@@ -1,3 +1,5 @@
+import copy
+import random
 import sys
 from typing import Tuple
 
@@ -6,20 +8,16 @@ import cairo
 from abc import ABC, abstractmethod
 
 from PIL import Image
-from shapely import Polygon
 
 from geometry.point_2d import *
-from util.color_utils import find_points_most_common_color, get_point_color, get_colors_difference, \
-    make_colors_more_different, get_colors_ratio
+from util.color_utils import find_points_most_common_color
 from util.image_drawer import draw_polygon, draw_polygon_with_gradient
 from util.geometry_utils import find_points_in_polygon, split_polygon
 
 
 class ARegion(ABC):
 
-    COLORS_DIFFERENCE_MULTIPLIER = 1.5
-    MIN_COLORS_RATIO = 0.2
-    MAX_COLORS_RATIO = 0.8
+    PAPER_CHANNEL_ADDITION = 0.15
 
     def __init__(self, vertices: list[Point2D], base_color: Tuple[float, float, float]):
         self.__vertices = vertices
@@ -90,6 +88,16 @@ class ARegion(ABC):
 
         # vykreslení polygonu s gradientem
         draw_polygon_with_gradient(context, self.__vertices, start_vertex, end_vertex, start_color, end_color)
+
+    def draw_paper(self, context: cairo.Context) -> None:
+        # zesvětlení barevných kanálů
+        color_r = min(self.__base_color[0] + self.PAPER_CHANNEL_ADDITION, 1)
+        color_g = min(self.__base_color[1] + self.PAPER_CHANNEL_ADDITION, 1)
+
+        # modrá přidána méně, aby byl obraz žlutější
+        color_b = min(self.__base_color[2] + self.PAPER_CHANNEL_ADDITION * 5/6, 1)
+
+        draw_polygon(context, self.__vertices, (color_r, color_g, color_b), False)
 
     def get_vertices(self) -> list[Point2D]:
         return self.__vertices

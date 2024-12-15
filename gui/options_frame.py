@@ -110,7 +110,8 @@ class OptionsFrame(tk.Frame):
                                                *[EffectType.BASIC.value,
                                                  EffectType.GRID_ONE_COLOR.value,
                                                  EffectType.GRID_COLORFUL.value,
-                                                 EffectType.GRADIENTS.value],
+                                                 EffectType.GRADIENTS.value,
+                                                 EffectType.PAPER.value],
                                                command=self.__controller.set_effect)
             self.__effect_menu.pack(pady=10, fill="x", expand=True)
 
@@ -119,7 +120,8 @@ class OptionsFrame(tk.Frame):
                                                *[EffectType.BASIC.value,
                                                  EffectType.GRID_ONE_COLOR.value,
                                                  EffectType.GRID_COLORFUL.value,
-                                                 EffectType.GRADIENTS.value],
+                                                 EffectType.GRADIENTS.value,
+                                                 EffectType.PAPER.value],
                                                command=self.__controller.set_effect)
             self.__effect_menu.pack(pady=10, fill="x", expand=True)
 

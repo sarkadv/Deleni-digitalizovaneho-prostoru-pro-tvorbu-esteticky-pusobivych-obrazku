@@ -1,9 +1,15 @@
 import math
+import random
 from typing import Tuple
 
 import cairo
 
 from geometry.point_2d import Point2D
+from util.geometry_utils import create_convolution_padding, apply_convolution
+
+GAUSSIAN_CONVOLUTION_MATRIX = [[1 / 16, 1 / 8, 1 / 16],
+                               [1 / 8, 1 / 4, 1 / 8],
+                               [1 / 16, 1 / 8, 1 / 16]]
 
 
 def draw_polygon(context: cairo.Context, vertices: list[Point2D], color: Tuple[float, float, float],
@@ -52,7 +58,6 @@ def draw_oval(context: cairo.Context, center: Point2D, radius_x: float, radius_y
 def draw_polygon_with_gradient(context: cairo.Context, vertices: list[Point2D], start_vertex: Point2D,
                                end_vertex: Point2D, start_color: Tuple[float, float, float],
                                end_color: Tuple[float, float, float]) -> None:
-
     gradient = cairo.LinearGradient(start_vertex.get_x(), start_vertex.get_y(), end_vertex.get_x(), end_vertex.get_y())
 
     gradient.add_color_stop_rgb(0, start_color[0], start_color[1], start_color[2])  # počátek gradientu
@@ -76,3 +81,62 @@ def draw_polygon_with_gradient(context: cairo.Context, vertices: list[Point2D], 
 
 def draw_background(context: cairo.Context, width: int, height: int, color: Tuple[float, float, float]) -> None:
     draw_polygon(context, [Point2D(0, 0), Point2D(width, 0), Point2D(width, height), Point2D(0, height)], color, False)
+
+
+def draw_paper_texture(context: cairo.Context, width: int, height: int) -> None:
+    # velikost jedné částice podle rozměrů obrázku
+    noise_particle_size = int(math.log(width * height, 100))
+
+    # intenzita náhodných částic po celém obrázku
+    noise_intensity = [[random.uniform(0.05, 0.1) for _ in range(int(width / noise_particle_size))]
+                       for _ in range(int(height / noise_particle_size))]
+
+    # Gaussovské rozostření intenzity
+    noise_intensity_gaussian = create_convolution_padding(noise_intensity)
+    noise_intensity_gaussian = apply_convolution(noise_intensity_gaussian, GAUSSIAN_CONVOLUTION_MATRIX)
+
+    for i in range(len(noise_intensity)):
+        for j in range(len(noise_intensity[i])):
+            # průhlednost částice vypočítána z původni intenzity a rozostřené intenzity
+            alpha = noise_intensity[i][j] + noise_intensity_gaussian[i][j]
+
+            context.set_source_rgba(0, 0, 0, alpha)
+            context.rectangle(j * noise_particle_size, i * noise_particle_size, noise_particle_size,
+                              noise_particle_size)
+            context.fill()
+
+    # vykreslení útržků po stranách obrázku
+
+    # délka útržku
+    last_scrap_length = 1
+    max_scrap_length = int(height / 100)
+    context.set_source_rgba(0, 0, 0, 0.75)
+
+    # vykreslení útržků po horizontálních stranách
+    for i in range(width):
+        addition = random.choice([1, -1])
+
+        # délka útržku se může změnit maximálně o jeden pixel od minulé délky
+        current_scrap_length = min(max(last_scrap_length + addition, 1), max_scrap_length)
+        last_scrap_length = current_scrap_length
+
+        context.rectangle(i, 0, 1, current_scrap_length)
+        context.fill()
+
+        context.rectangle(i, height - current_scrap_length, 1, current_scrap_length)
+        context.fill()
+
+    last_scrap_length = 1
+    max_scrap_length = int(width / 100)
+
+    # vykreslení útržků po vertikálních stranách
+    for i in range(height):
+        addition = random.choice([1, -1])
+        current_scrap_length = min(max(last_scrap_length + addition, 1), max_scrap_length)
+        last_scrap_length = current_scrap_length
+
+        context.rectangle(0, i, current_scrap_length, 1)
+        context.fill()
+
+        context.rectangle(width - current_scrap_length, i, current_scrap_length, 1)
+        context.fill()

@@ -3,6 +3,7 @@ from scipy.spatial import Voronoi
 from tessellations.a_tessellation import *
 from geometry.voronoi_region import *
 from geometry.a_region import *
+from util.color_utils import get_point_color
 from util.geometry_utils import *
 
 

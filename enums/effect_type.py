@@ -8,4 +8,5 @@ class EffectType(ExtendedEnum):
     GRID_COLORFUL = 'Grid - Vícebarevný'
     MULTIPLE_SHAPES = 'Různé tvary oblastí'
     RECTANGLE_WITH_OVAL = 'Obdélníkové oblasti s ovály'
-    GRADIENTS = 'Oblasti s gradientem'
+    GRADIENTS = 'Gradienty'
+    PAPER = 'Papír'

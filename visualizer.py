@@ -5,7 +5,7 @@ import cairo
 from geometry.a_region import ARegion
 from enums.effect_type import *
 from util.color_utils import find_complementary_color, find_image_mode_color
-from util.image_drawer import draw_background
+from util.image_drawer import draw_background, draw_paper_texture
 from util.geometry_utils import *
 
 
@@ -65,6 +65,12 @@ class Visualizer:
         elif self.__effect == EffectType.GRADIENTS:
             for region in self.__regions:
                 region.draw_gradients(context, self.__image)
+
+        elif self.__effect == EffectType.PAPER:
+            for region in self.__regions:
+                region.draw_paper(context)
+
+            draw_paper_texture(context, self.__image.width, self.__image.height)
 
         data = surface.get_data()
         image = Image.frombuffer("RGBA", (self.__image.width, self.__image.height), data, "raw", "BGRA", 0, 1)

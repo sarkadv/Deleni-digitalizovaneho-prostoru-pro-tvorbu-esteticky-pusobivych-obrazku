@@ -5,6 +5,7 @@ from scipy.spatial import Delaunay, KDTree
 from distributions.a_distribution import *
 from geometry.pixel import Pixel
 from geometry.point_2d import *
+from util.geometry_utils import apply_convolution, create_convolution_padding
 
 
 class ALaplaceDistribution(ADistribution):
@@ -29,15 +30,15 @@ class ALaplaceDistribution(ADistribution):
         r_channel, g_channel, b_channel = self.__create_color_channels(image)
 
         # výpočet Laplaceova filtru odděleně pro všechny kanály
-        laplace_r = self.__compute_laplace(r_channel)
-        laplace_g = self.__compute_laplace(g_channel)
-        laplace_b = self.__compute_laplace(b_channel)
+        laplace_r = apply_convolution(r_channel, self.CONVOLUTION_MATRIX)
+        laplace_g = apply_convolution(g_channel, self.CONVOLUTION_MATRIX)
+        laplace_b = apply_convolution(b_channel, self.CONVOLUTION_MATRIX)
 
         pixels = []
 
         for i in range(image.height):
             for j in range(image.width):
-                pixels.append(Pixel(j, i, laplace_r[i][j], laplace_g[i][j], laplace_b[i][j]))
+                pixels.append(Pixel(j, i, int(laplace_r[i][j]), int(laplace_g[i][j]), int(laplace_b[i][j])))
 
         # ponecháme pouze část pixelů s největšími hodnotami v absolutní hodnotě
         pixels.sort(key=lambda pixel: abs(pixel.get_r() + pixel.get_g() + pixel.get_b()), reverse=True)
@@ -87,65 +88,24 @@ class ALaplaceDistribution(ADistribution):
 
     def __create_color_channels(self, image: ImageFile) -> Tuple:
         # inicializace 2D pole hodnot barev pro výpočet Laplaceova filtru
-        # navíc 2 řádky nahoře a dole + 2 sloupce vlevo a vpravo kvůli použití konvolučního jádra
-        r_channel = [[0 for j in range(image.width + 2)] for i in range(image.height + 2)]
-        g_channel = [[0 for j in range(image.width + 2)] for i in range(image.height + 2)]
-        b_channel = [[0 for j in range(image.width + 2)] for i in range(image.height + 2)]
+        r_channel = [[0 for j in range(image.width)] for i in range(image.height)]
+        g_channel = [[0 for j in range(image.width)] for i in range(image.height)]
+        b_channel = [[0 for j in range(image.width)] for i in range(image.height)]
 
         # i = řádek, j = sloupec
         for i in range(image.height):
             for j in range(image.width):
                 r, g, b = image.getpixel((j, i))
-                r_channel[i + 1][j + 1] = r
-                g_channel[i + 1][j + 1] = g
-                b_channel[i + 1][j + 1] = b
+                r_channel[i][j] = r
+                g_channel[i][j] = g
+                b_channel[i][j] = b
 
-                if j == 0:  # pixel úplně vlevo
-                    r_channel[i + 1][j] = r
-                    g_channel[i + 1][j] = g
-                    b_channel[i + 1][j] = b
-
-                elif j == image.width - 1:  # pixel úplně vpravo
-                    r_channel[i + 1][j + 2] = r
-                    g_channel[i + 1][j + 2] = g
-                    b_channel[i + 1][j + 2] = b
-
-        # 1. řádek vložen znovu úplně nahoru kvůli výpočtu s konvolučním jádrem
-        for j in range(image.width + 2):
-            r_channel[0][j] = r_channel[1][j]
-            g_channel[0][j] = g_channel[1][j]
-            b_channel[0][j] = b_channel[1][j]
-
-        # poslední řádek vložen znovu úplně dolů kvůli výpočtu s konvolučním jádrem
-        for j in range(image.width + 2):
-            r_channel[image.height + 1][j] = r_channel[image.height][j]
-            g_channel[image.height + 1][j] = g_channel[image.height][j]
-            b_channel[image.height + 1][j] = b_channel[image.height][j]
+        # padding matic po stranách
+        r_channel = create_convolution_padding(r_channel)
+        g_channel = create_convolution_padding(g_channel)
+        b_channel = create_convolution_padding(b_channel)
 
         return r_channel, g_channel, b_channel
-
-    def __compute_laplace(self, color_matrix: list[list[int]]) -> list[list[int]]:
-        # výsledná matice má o 2 řádky a sloupce méně
-        result_height = len(color_matrix) - 2
-        result_width = len(color_matrix[0]) - 2
-
-        result = [[0 for j in range(result_width)] for i in range(result_height)]
-
-        for i in range(1, result_height + 1):
-            for j in range(1, result_width + 1):
-                laplace_sum = 0
-
-                # výpočet diskrétní konvoluce
-                for i_conv in range(-1, 2):
-                    for j_conv in range(-1, 2):
-                        convolution_matrix_value = self.CONVOLUTION_MATRIX[i_conv + 1][j_conv + 1]
-                        color_matrix_value = color_matrix[i + i_conv][j + j_conv]
-                        laplace_sum += convolution_matrix_value * color_matrix_value
-
-                # umístění výsledku konvoluce do matice
-                result[i - 1][j - 1] = laplace_sum
-
-        return result
 
     def __remove_similar_pixels(self, pixels: list[Pixel], min_distance_between_points: int) -> list[Pixel]:
         # vytvoření datové struktury KD-tree z bodů
