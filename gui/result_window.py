@@ -51,7 +51,10 @@ class ResultWindow(tk.Toplevel):
         self.__canvas.pack(pady=10)
 
     def __create_canvas_image(self, image: Image) -> tk.PhotoImage:
-        if image.width <= self.CANVAS_WIDTH and image.height <= self.CANVAS_HEIGHT:
+        canvas_image_width = self.CANVAS_WIDTH - 20
+        canvas_image_height = self.CANVAS_HEIGHT - 20
+
+        if image.width <= canvas_image_width and image.height <= canvas_image_height:
             return ImageTk.PhotoImage(image)
 
         # obrázek větší než plátno
@@ -59,13 +62,13 @@ class ResultWindow(tk.Toplevel):
             if image.width >= image.height:
                 height_to_width_ratio = image.height / image.width
 
-                width = self.CANVAS_WIDTH
+                width = canvas_image_width
                 height = int(width * height_to_width_ratio)
 
             else:
                 width_to_height_ratio = image.width / image.height
 
-                height = self.CANVAS_HEIGHT
+                height = canvas_image_height
                 width = int(height * width_to_height_ratio)
 
             image_resized = image.resize((width, height), Image.LANCZOS)
