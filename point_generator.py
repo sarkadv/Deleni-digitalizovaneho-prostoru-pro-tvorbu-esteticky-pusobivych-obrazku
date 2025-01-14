@@ -5,8 +5,8 @@ from distributions.laplace_distribution_length import LaplaceDistributionLength
 from distributions.mitchell_distribution import MitchellDistribution
 from distributions.normal_distribution_thirds import NormalDistributionThirds
 from distributions.quadtree_distribution import QuadtreeDistribution
-from enums.distribution_type import *
 from distributions.uniform_distribution import *
+from enums.distribution_type import *
 
 
 class PointGenerator:

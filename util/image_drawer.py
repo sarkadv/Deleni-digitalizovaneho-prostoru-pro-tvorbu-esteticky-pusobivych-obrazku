@@ -104,39 +104,3 @@ def draw_paper_texture(context: cairo.Context, width: int, height: int) -> None:
             context.rectangle(j * noise_particle_size, i * noise_particle_size, noise_particle_size,
                               noise_particle_size)
             context.fill()
-
-    # vykreslení útržků po stranách obrázku
-
-    # délka útržku
-    last_scrap_length = 1
-    max_scrap_length = int(height / 100)
-    context.set_source_rgba(0, 0, 0, 0.75)
-
-    # vykreslení útržků po horizontálních stranách
-    for i in range(width):
-        addition = random.choice([1, -1])
-
-        # délka útržku se může změnit maximálně o jeden pixel od minulé délky
-        current_scrap_length = min(max(last_scrap_length + addition, 1), max_scrap_length)
-        last_scrap_length = current_scrap_length
-
-        context.rectangle(i, 0, 1, current_scrap_length)
-        context.fill()
-
-        context.rectangle(i, height - current_scrap_length, 1, current_scrap_length)
-        context.fill()
-
-    last_scrap_length = 1
-    max_scrap_length = int(width / 100)
-
-    # vykreslení útržků po vertikálních stranách
-    for i in range(height):
-        addition = random.choice([1, -1])
-        current_scrap_length = min(max(last_scrap_length + addition, 1), max_scrap_length)
-        last_scrap_length = current_scrap_length
-
-        context.rectangle(0, i, current_scrap_length, 1)
-        context.fill()
-
-        context.rectangle(width - current_scrap_length, i, current_scrap_length, 1)
-        context.fill()

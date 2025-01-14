@@ -21,7 +21,7 @@ class Controller(tk.Tk):
     DEFAULT_WINDOW_SIZE = "350x550"
     MIN_WINDOW_WIDTH = 350
     MIN_WINDOW_HEIGHT = 550
-    TITLE = "ddpptepo"
+    TITLE = ""
 
     def __init__(self):
         tk.Tk.__init__(self)

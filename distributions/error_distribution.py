@@ -1,7 +1,5 @@
 import math
-import sys
 
-import numpy as np
 from scipy.spatial import Voronoi
 
 from distributions.a_distribution import *

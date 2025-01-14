@@ -1,11 +1,8 @@
-import copy
 import random
 import sys
 from typing import Tuple
 
 import PIL.Image as Image
-import numpy as np
-from scipy.spatial._qhull import ConvexHull
 
 from shapely import Polygon, LineString
 from shapely.geometry import Point, MultiPoint
@@ -180,7 +177,11 @@ def split_polygon(vertices: list[Point2D]) -> list[list[Point2D]]:
 
     # rozdělení polygonu dělicí přímkou
     split_polygons = []
-    parts = polygon.difference(line.buffer(1))
+
+    try:
+        parts = polygon.difference(line.buffer(1))
+    except Exception:
+        return [vertices]  # vrácení původního polygonu
 
     if parts.geom_type == "MultiPolygon":
         # úspěšné rozdělení na 2 polygony
