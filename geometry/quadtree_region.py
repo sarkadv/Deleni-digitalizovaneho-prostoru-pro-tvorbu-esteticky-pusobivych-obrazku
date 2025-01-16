@@ -44,7 +44,7 @@ class QuadtreeRegion(ARegion):
                 # vykreslit pouze koncové regiony bez potomků - region s potomky je stejně překrytý
                 continue
 
-            draw_polygon(context, region.get_vertices(), region.get_base_color(), False)
+            draw_polygon(context, region.get_vertices(), region.get_base_color(), region.get_base_color())
 
     def draw_grid(self, context: cairo.Context, border_width: float,
                   border_color_rgb: Tuple[float, float, float], colorful: bool) -> None:
@@ -71,7 +71,7 @@ class QuadtreeRegion(ARegion):
                 # obrys každé oblasti může být jiný
                 border_color = find_complementary_color(region.get_base_color())
 
-            draw_polygon(context, region.get_vertices(), border_color, True)
+            draw_polygon(context, region.get_vertices(), region.get_base_color(), border_color)
 
     def draw_multiple_shapes(self, context: cairo.Context) -> None:
         stack = [self]
@@ -96,7 +96,7 @@ class QuadtreeRegion(ARegion):
 
             if random_number <= 25:
                 # obdélník
-                draw_polygon(context, region.get_vertices(), region.get_base_color(), False)
+                draw_polygon(context, region.get_vertices(), region.get_base_color(), region.get_base_color())
 
             elif random_number <= 50:
                 # ovál
@@ -114,7 +114,7 @@ class QuadtreeRegion(ARegion):
                 random_index = random.randint(1, len(vertices) - 1)
                 del vertices[random_index]
 
-                draw_polygon(context, vertices, region.get_base_color(), False)
+                draw_polygon(context, vertices, region.get_base_color(), region.get_base_color())
 
             else:
                 # kosodélník
@@ -132,7 +132,7 @@ class QuadtreeRegion(ARegion):
                     center = vertex.line_center(next_vertex)
                     vertices.append(center)
 
-                draw_polygon(context, vertices, region.get_base_color(), False)
+                draw_polygon(context, vertices, region.get_base_color(), region.get_base_color())
 
     def draw_rectangle_with_oval(self, context: cairo.Context, image: Image):
         stack = [self]
@@ -176,7 +176,7 @@ class QuadtreeRegion(ARegion):
             colors_ratio = min(colors_ratio, self.MAX_COLORS_RATIO)
 
             # nakreslení obdélníku
-            draw_polygon(context, region.get_vertices(), rectangle_color, False)
+            draw_polygon(context, region.get_vertices(), rectangle_color, rectangle_color)
 
             center = find_polygon_centroid(region.get_vertices())
 

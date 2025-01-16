@@ -15,10 +15,10 @@ class ResultWindow(tk.Toplevel):
 
     IMG_OUTPUT_FOLDER = "img_output/"
 
-    def __init__(self, parent: tk.Frame, controller, generated_image: Image):
+    def __init__(self, parent: tk.Frame, controller):
         super().__init__(parent)
         self.__controller = controller
-        self.__generated_image = generated_image
+        self.__generated_image = controller.get_generated_image()
 
         self.title("Vygenerovaný obrázek")
         self.geometry(self.DEFAULT_WINDOW_SIZE)
@@ -33,8 +33,8 @@ class ResultWindow(tk.Toplevel):
         self.__save_button = tk.Button(self, text="Uložit obrázek", command=lambda: self.__save_file())
         self.__save_button.pack(pady=10, padx=(250, 10), side=tk.LEFT)
 
-        self.__save_button = tk.Button(self, text="< Zpět", command=lambda: self.__close_window())
-        self.__save_button.pack(pady=10, padx=(10, 250), side=tk.RIGHT)
+        self.__back_button = tk.Button(self, text="< Zpět", command=lambda: self.__close_window())
+        self.__back_button.pack(pady=10, padx=(10, 250), side=tk.RIGHT)
 
     def __create_canvas(self) -> None:
         self.__canvas = tk.Canvas(self, width=self.CANVAS_WIDTH, height=self.CANVAS_HEIGHT)

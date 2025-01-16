@@ -1,3 +1,5 @@
+from PIL import Image
+
 from distributions.error_distribution import ErrorDistribution
 from distributions.laplace_distribution_area import LaplaceDistributionArea
 from distributions.laplace_distribution_gradient import LaplaceDistributionGradient
@@ -10,7 +12,7 @@ from enums.distribution_type import *
 
 
 class PointGenerator:
-    def __init__(self, image: ImageFile, distribution_type: DistributionType,
+    def __init__(self, image: Image, distribution_type: DistributionType,
                  x_min: int, x_max: int, y_min: int, y_max: int):
 
         self.__image = image

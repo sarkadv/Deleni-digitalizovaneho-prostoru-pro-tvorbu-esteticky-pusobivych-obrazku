@@ -143,10 +143,13 @@ class Controller(tk.Tk):
         visualizer = Visualizer(self.__image, regions, self.__effect)
         self.__generated_image = visualizer.create_image()
 
-        self.__frames[GeneratingFrame.NAME].set_image_generated(self.__generated_image)
+        self.__frames[GeneratingFrame.NAME].set_image_generated()
         self.__frames[GeneratingFrame.NAME].show_continue_button()
 
     def reset(self) -> None:
         # celé okno se zruší a znovu inicializuje
         self.destroy()
         self.__init__()
+
+    def get_generated_image(self) -> Image:
+        return self.__generated_image

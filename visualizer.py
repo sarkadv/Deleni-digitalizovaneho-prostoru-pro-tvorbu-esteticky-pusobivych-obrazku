@@ -1,5 +1,3 @@
-import os
-
 import cairo
 
 from geometry.a_region import ARegion
@@ -10,17 +8,12 @@ from util.geometry_utils import *
 
 
 class Visualizer:
-
     BORDER_DIVISOR = 500
-    IMG_OUTPUT_FOLDER = 'img_output/'
-    IMG_OUTPUT_EXTENSION = '.png'
 
     def __init__(self, image: Image, regions: list[ARegion], effect: EffectType):
         self.__image = image
         self.__regions = regions
         self.__effect = effect
-
-        self.__output_filename = self.find_output_filename(self.__image.filename)
 
     def create_image(self) -> Image:
         surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.__image.width, self.__image.height)
@@ -34,8 +27,8 @@ class Visualizer:
             border_width = self.__image.width / self.BORDER_DIVISOR
             border_color_rgb = find_complementary_color(find_image_mode_color(self.__image))
 
-            surface = self.cairo_surface_from_image()
-            context = cairo.Context(surface)
+            # surface = self.cairo_surface_from_image()
+            # context = cairo.Context(surface)
 
             for region in self.__regions:
                 region.draw_grid(context, border_width, border_color_rgb, False)
@@ -76,12 +69,6 @@ class Visualizer:
         image = Image.frombuffer("RGBA", (self.__image.width, self.__image.height), data, "raw", "BGRA", 0, 1)
         return image
 
-    def find_output_filename(self, input_filename: str) -> str:
-        basename = os.path.basename(input_filename)
-        basename_no_extension = basename.split('.')[0]
-
-        return self.IMG_OUTPUT_FOLDER + basename_no_extension + self.IMG_OUTPUT_EXTENSION
-
     def cairo_surface_from_image(self) -> cairo.Surface:
         # podle https://pycairo.readthedocs.io/en/latest/tutorial/pillow.html
 
@@ -89,4 +76,3 @@ class Visualizer:
         arr = bytearray(self.__image.tobytes('raw', 'BGRa'))
 
         return cairo.ImageSurface.create_for_data(arr, cairo.FORMAT_RGB24, self.__image.width, self.__image.height)
-

@@ -23,10 +23,10 @@ class VoronoiRegion(ARegion):
             # obrys každé oblasti může být jiný
             border_color = find_complementary_color(self.get_base_color())
 
-        draw_polygon(context, self.get_vertices(), border_color, True)
+        draw_polygon(context, self.get_vertices(), self.get_base_color(), border_color)
 
         # nakreslení generátoru
-        draw_circle(context, self.__generator, border_width * 1.5, border_color)
+        draw_circle(context, self.__generator, border_width, border_color)
 
     def draw_multiple_shapes(self, context: cairo.Context):
         pass

@@ -13,7 +13,7 @@ GAUSSIAN_CONVOLUTION_MATRIX = [[1 / 16, 1 / 8, 1 / 16],
 
 
 def draw_polygon(context: cairo.Context, vertices: list[Point2D], color: Tuple[float, float, float],
-                 border_only: bool) -> None:
+                 border_color: Tuple[float, float, float]) -> None:
     points = [(vertex.get_x(), vertex.get_y()) for vertex in vertices]
 
     # nakreslení výplně
@@ -24,9 +24,9 @@ def draw_polygon(context: cairo.Context, vertices: list[Point2D], color: Tuple[f
         context.line_to(*point)
     context.close_path()  # uzavření polygonu
 
-    if not border_only:
-        context.fill_preserve()
+    context.fill_preserve()     # výplň
 
+    context.set_source_rgb(*border_color)
     context.set_line_width(1)  # nakreslení obrysu
     context.stroke()
 
@@ -80,7 +80,7 @@ def draw_polygon_with_gradient(context: cairo.Context, vertices: list[Point2D], 
 
 
 def draw_background(context: cairo.Context, width: int, height: int, color: Tuple[float, float, float]) -> None:
-    draw_polygon(context, [Point2D(0, 0), Point2D(width, 0), Point2D(width, height), Point2D(0, height)], color, False)
+    draw_polygon(context, [Point2D(0, 0), Point2D(width, 0), Point2D(width, height), Point2D(0, height)], color, color)
 
 
 def draw_paper_texture(context: cairo.Context, width: int, height: int) -> None:

@@ -22,7 +22,7 @@ class ARegion(ABC):
         self.__base_color = base_color
 
     def draw_basic(self, context: cairo.Context) -> None:
-        draw_polygon(context, self.__vertices, self.__base_color, False)
+        draw_polygon(context, self.__vertices, self.__base_color, self.__base_color)
 
     @abstractmethod
     def draw_grid(self, context: cairo.Context, border_width: float,
@@ -43,7 +43,7 @@ class ARegion(ABC):
 
         if len(polygons) < 2:
             # nedošlo k rozdělení polygonu (např. polygon moc malý)
-            draw_polygon(context, self.__vertices, self.__base_color, False)
+            draw_polygon(context, self.__vertices, self.__base_color, self.__base_color)
             return
 
         polygon1 = polygons[0]
@@ -55,7 +55,7 @@ class ARegion(ABC):
 
         if len(points1) == 0 or len(points2) == 0:
             # nenalezeny žádné body alespoň v jednom z polygonů (např. polygon moc malý)
-            draw_polygon(context, self.__vertices, self.__base_color, False)
+            draw_polygon(context, self.__vertices, self.__base_color, self.__base_color)
             return
 
         # nalezení nejčastějších barev v polygonech
@@ -95,7 +95,7 @@ class ARegion(ABC):
         # modrá přidána méně, aby byl obraz žlutější
         color_b = min(self.__base_color[2] + self.PAPER_CHANNEL_ADDITION * 5/6, 1)
 
-        draw_polygon(context, self.__vertices, (color_r, color_g, color_b), False)
+        draw_polygon(context, self.__vertices, (color_r, color_g, color_b), (color_r, color_g, color_b))
 
     def get_vertices(self) -> list[Point2D]:
         return self.__vertices
