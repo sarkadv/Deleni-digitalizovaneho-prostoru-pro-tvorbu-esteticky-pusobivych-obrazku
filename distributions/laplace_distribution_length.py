@@ -1,11 +1,11 @@
-from PIL import ImageFile
+from PIL import Image
 
 from distributions.a_laplace_distribution import ALaplaceDistribution
 from geometry.point_2d import *
 
 
 class LaplaceDistributionLength(ALaplaceDistribution):
-    def split_triangle(self, points: list[Point2D], image: ImageFile) -> list[Point2D]:
+    def split_triangle(self, points: list[Point2D], image: Image) -> list[Point2D]:
         if len(points) < 3:
             return []
 

@@ -5,7 +5,7 @@ from typing import Tuple
 import cairo
 
 from geometry.point_2d import Point2D
-from util.geometry_utils import create_convolution_padding, apply_convolution
+from util.geometry_utils import create_convolution_padding, convolute
 
 GAUSSIAN_CONVOLUTION_MATRIX = [[1 / 16, 1 / 8, 1 / 16],
                                [1 / 8, 1 / 4, 1 / 8],
@@ -93,7 +93,7 @@ def draw_paper_texture(context: cairo.Context, width: int, height: int) -> None:
 
     # Gaussovské rozostření intenzity
     noise_intensity_gaussian = create_convolution_padding(noise_intensity)
-    noise_intensity_gaussian = apply_convolution(noise_intensity_gaussian, GAUSSIAN_CONVOLUTION_MATRIX)
+    noise_intensity_gaussian = convolute(noise_intensity_gaussian, GAUSSIAN_CONVOLUTION_MATRIX)
 
     for i in range(len(noise_intensity)):
         for j in range(len(noise_intensity[i])):

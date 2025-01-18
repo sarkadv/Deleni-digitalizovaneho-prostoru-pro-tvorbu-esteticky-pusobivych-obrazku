@@ -10,7 +10,7 @@ class MitchellDistribution(ADistribution):
     POINT_COUNT_MULTIPLIER = 100_000
     CANDIDATE_COUNT_MULTIPLIER = 2
 
-    def generate_points(self, image: ImageFile, x_min: int, x_max: int, y_min: int, y_max: int) -> list[Point2D]:
+    def generate_points(self, image: Image, x_min: int, x_max: int, y_min: int, y_max: int) -> list[Point2D]:
         # náhodné proměnné diskrétního rovnoměrného rozdělení
         uniform_discrete_variable_x = stats.randint(low=x_min, high=x_max)
         uniform_discrete_variable_y = stats.randint(low=y_min, high=y_max)

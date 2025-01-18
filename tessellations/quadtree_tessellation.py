@@ -10,7 +10,7 @@ class QuadtreeTessellation(ATessellation):
     MIN_AREA_SIZE = 0  # minimální obsah obdélníku
     MIN_AREA_SIZE_DIVISOR = 10_000
 
-    def generate_regions(self, points: list[Point2D], image: ImageFile) -> list[ARegion]:
+    def generate_regions(self, points: list[Point2D], image: Image) -> list[ARegion]:
         self.MIN_AREA_SIZE = image.width * image.height / self.MIN_AREA_SIZE_DIVISOR
 
         stack = []

@@ -107,24 +107,8 @@ class Controller(tk.Tk):
         self.__show_frame(GeneratingFrame.NAME)
         self.update()   # vykreslení nového rámce
 
-        if self.__tessellation == TessellationType.VORONOI:
-            point_generator = PointGenerator(self.__image, self.__distribution, 1, self.__image.width, 1, self.__image.height)
-
-        elif self.__tessellation == TessellationType.DELAUNAY_FAST or self.__tessellation == TessellationType.DELAUNAY_BETTER_COLORS:
-            if self.__distribution == DistributionType.UNIFORM:
-                # body i trochu mimo obrázek
-                x_min = int((-1 / DELAUNAY_OUTSIDE_POINTS_FRACTION) * self.__image.width)
-                x_max = int(((DELAUNAY_OUTSIDE_POINTS_FRACTION + 1) / DELAUNAY_OUTSIDE_POINTS_FRACTION) * self.__image.width)
-                y_min = int((-1 / DELAUNAY_OUTSIDE_POINTS_FRACTION) * self.__image.height)
-                y_max = int(((DELAUNAY_OUTSIDE_POINTS_FRACTION + 1) / DELAUNAY_OUTSIDE_POINTS_FRACTION) * self.__image.height)
-
-                point_generator = PointGenerator(self.__image, self.__distribution, x_min, x_max, y_min, y_max)
-
-            else:
-                point_generator = PointGenerator(self.__image, self.__distribution, 1, self.__image.width, 1, self.__image.height)
-
-        elif self.__tessellation == TessellationType.QUADTREE:
-            point_generator = PointGenerator(self.__image, self.__distribution, 1, self.__image.width, 1, self.__image.height)
+        point_generator = PointGenerator(self.__image, self.__distribution, 1, self.__image.width, 1,
+                                         self.__image.height)
 
         points = point_generator.generate_points()
 

@@ -1,10 +1,10 @@
 class Pixel:
-    def __init__(self, x: int, y: int, r: int, g: int, b: int):
+    def __init__(self, x: int, y: int, convolution_r: int, convolution_g: int, convolution_b: int):
         self.__x = x
         self.__y = y
-        self.__r = r
-        self.__g = g
-        self.__b = b
+        self.__convolution_r = convolution_r
+        self.__convolution_g = convolution_g
+        self.__convolution_b = convolution_b
 
     def get_x(self) -> int:
         return self.__x
@@ -12,11 +12,14 @@ class Pixel:
     def get_y(self) -> int:
         return self.__y
 
-    def get_r(self) -> int:
-        return self.__r
+    def get_convolution_r(self) -> int:
+        return self.__convolution_r
 
-    def get_g(self) -> int:
-        return self.__g
+    def get_convolution_g(self) -> int:
+        return self.__convolution_g
 
-    def get_b(self) -> int:
-        return self.__b
+    def get_convolution_b(self) -> int:
+        return self.__convolution_b
+
+    def get_convolution_gradient(self) -> int:
+        return self.__convolution_r + self.__convolution_g + self.__convolution_b

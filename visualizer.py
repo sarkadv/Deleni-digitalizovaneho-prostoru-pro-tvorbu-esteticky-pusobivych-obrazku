@@ -36,8 +36,8 @@ class Visualizer:
         elif self.__effect == EffectType.GRID_COLORFUL:
             border_width = self.__image.width / self.BORDER_DIVISOR
 
-            surface = self.cairo_surface_from_image()
-            context = cairo.Context(surface)
+            # surface = self.cairo_surface_from_image()
+            # context = cairo.Context(surface)
 
             for region in self.__regions:
                 # barva je vybrána samostatně pro každý region

@@ -3,6 +3,6 @@ from geometry.point_2d import *
 
 
 class QuadtreeDistribution(ADistribution):
-    def generate_points(self, image: ImageFile, x_min: int, x_max: int, y_min: int, y_max: int) -> list[Point2D]:
+    def generate_points(self, image: Image, x_min: int, x_max: int, y_min: int, y_max: int) -> list[Point2D]:
         # vrácení rohů obrázku
         return [Point2D(0, 0), Point2D(image.width, 0), Point2D(image.width, image.height), Point2D(0, image.height)]

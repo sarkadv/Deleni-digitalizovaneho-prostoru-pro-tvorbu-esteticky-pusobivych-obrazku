@@ -5,7 +5,7 @@ from scipy.spatial import Delaunay, KDTree
 from distributions.a_distribution import *
 from geometry.pixel import Pixel
 from geometry.point_2d import *
-from util.geometry_utils import apply_convolution, create_convolution_padding
+from util.geometry_utils import convolute, create_convolution_padding
 
 
 class ALaplaceDistribution(ADistribution):
@@ -21,18 +21,18 @@ class ALaplaceDistribution(ADistribution):
     MAX_VERTEX_COLOR_DIFFERENCE = 0.85
     MIN_DISTANCE_BETWEEN_POINTS = 0
 
-    def generate_points(self, image: ImageFile, x_min: int, x_max: int, y_min: int, y_max: int) -> list[Point2D]:
+    def generate_points(self, image: Image, x_min: int, x_max: int, y_min: int, y_max: int) -> list[Point2D]:
         self.MAX_TRIANGLE_AREA = int((image.width * image.height) / self.AREA_DIVISOR)
         self.MAX_SIDE_LENGTH = int(min(image.width, image.height) / self.SIDE_DIVISOR)
         self.MIN_DISTANCE_BETWEEN_POINTS = int(min(image.width, image.height) / self.DISTANCE_DIVISOR)
 
         # oddělení barevných kanálů
-        r_channel, g_channel, b_channel = self.__create_color_channels(image)
+        r_channel, g_channel, b_channel = self.__separate_color_channels(image)
 
         # výpočet Laplaceova filtru odděleně pro všechny kanály
-        laplace_r = apply_convolution(r_channel, self.CONVOLUTION_MATRIX)
-        laplace_g = apply_convolution(g_channel, self.CONVOLUTION_MATRIX)
-        laplace_b = apply_convolution(b_channel, self.CONVOLUTION_MATRIX)
+        laplace_r = convolute(r_channel, self.CONVOLUTION_MATRIX)
+        laplace_g = convolute(g_channel, self.CONVOLUTION_MATRIX)
+        laplace_b = convolute(b_channel, self.CONVOLUTION_MATRIX)
 
         pixels = []
 
@@ -41,7 +41,7 @@ class ALaplaceDistribution(ADistribution):
                 pixels.append(Pixel(j, i, int(laplace_r[i][j]), int(laplace_g[i][j]), int(laplace_b[i][j])))
 
         # ponecháme pouze část pixelů s největšími hodnotami v absolutní hodnotě
-        pixels.sort(key=lambda pixel: abs(pixel.get_r() + pixel.get_g() + pixel.get_b()), reverse=True)
+        pixels.sort(key=lambda pixel: abs(pixel.get_convolution_gradient()), reverse=True)
         keep_count = int(len(pixels) * self.POINT_COUNT_MULTIPLIER)
         pixels = pixels[:keep_count]
 
@@ -67,26 +67,23 @@ class ALaplaceDistribution(ADistribution):
                 points = [Point2D(round(vertex[0]), round(vertex[1])) for vertex in vertices]
 
                 # otestování, zda je nutné přidat nový bod + vytvoření nového bodu / bodů
-                split_result = self.split_triangle(points, image)
+                new_points = self.split_triangle(points, image)
 
-                if len(split_result) > 0:
-                    # byl vytvořen nový bod / body
+                for new_point in new_points:
+                    coordinate = [new_point.get_x(), new_point.get_y()]
 
-                    for new in split_result:
-                        coordinate = [new.get_x(), new.get_y()]
-
-                        if coordinate not in coordinates:
-                            coordinates.append(coordinate)
-                            change = True
+                    if coordinate not in coordinates:
+                        coordinates.append(coordinate)
+                        change = True
 
         points = [Point2D(coordinate[0], coordinate[1]) for coordinate in coordinates]
-        return list(set(points))    # odstranění duplicit
+        return points
 
     @abstractmethod
-    def split_triangle(self, points: list[Point2D], image: ImageFile) -> list[Point2D]:
+    def split_triangle(self, points: list[Point2D], image: Image) -> list[Point2D]:
         pass
 
-    def __create_color_channels(self, image: ImageFile) -> Tuple:
+    def __separate_color_channels(self, image: Image) -> Tuple:
         # inicializace 2D pole hodnot barev pro výpočet Laplaceova filtru
         r_channel = [[0 for j in range(image.width)] for i in range(image.height)]
         g_channel = [[0 for j in range(image.width)] for i in range(image.height)]
@@ -113,20 +110,20 @@ class ALaplaceDistribution(ADistribution):
         tree = KDTree(points)
 
         unique_points = []
-        visited = set()     # indexy již nepotřebných bodů
+        visited_indices = set()     # indexy již nepotřebných bodů
 
         for i in range(len(points)):
             point = points[i]
 
-            if i in visited:
+            if i in visited_indices:
                 continue
 
             unique_points.append(pixels[i])
 
             # nalezení všech bodů, které jsou blízko aktuálního bodu
-            nearby_points = tree.query_ball_point(point, min_distance_between_points)
+            nearby_points_indices = tree.query_ball_point(point, min_distance_between_points)
 
-            for j in nearby_points:
-                visited.add(j)
+            for point_index in nearby_points_indices:
+                visited_indices.add(point_index)
 
         return unique_points

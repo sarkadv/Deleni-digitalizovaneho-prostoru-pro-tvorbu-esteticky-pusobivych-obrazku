@@ -1,5 +1,6 @@
 import math
 
+import numpy as np
 from scipy.spatial import Voronoi
 
 from distributions.a_distribution import *
@@ -10,12 +11,12 @@ from util.geometry_utils import *
 
 class ErrorDistribution(ADistribution):
     MAX_STANDARD_DEVIATION = 0.15  # maximální směrodatná odchylka barev regionu
-    MIN_AREA_SIZE = 0   # minimální obsah oblasti
+    MIN_AREA_SIZE = 0   # minimální obsah oblasti, vypočítá se při generování bodů
 
     MIN_AREA_SIZE_DIVISOR = 10_000
     POINT_COUNT_MULTIPLIER = 100_000
 
-    def generate_points(self, image: ImageFile, x_min: int, x_max: int, y_min: int, y_max: int) -> list[Point2D]:
+    def generate_points(self, image: Image, x_min: int, x_max: int, y_min: int, y_max: int) -> list[Point2D]:
         self.MIN_AREA_SIZE = image.width * image.height / self.MIN_AREA_SIZE_DIVISOR
 
         # počáteční body vygenerovány náhodně rovnoměrným rozdělením
@@ -35,18 +36,18 @@ class ErrorDistribution(ADistribution):
         # hranice obrázku
         bounds = [(0, 0), (0, image.height - 1), (image.width - 1, image.height - 1), (image.width - 1, 0)]
 
-        complete_regions_generators = set()     # body generující finální oblast
+        final_generators = set()     # body generující finální oblasti
         change = True
 
         while change:
             change = False
             voronoi = Voronoi(coordinates)
 
-            for i in range(0, len(voronoi.point_region)):
+            for i in range(len(voronoi.point_region)):
                 vor_point = voronoi.points[i]
                 generator = Point2D(int(vor_point[0]), int(vor_point[1]))
 
-                if generator in complete_regions_generators:
+                if generator in final_generators:
                     # oblast finální
                     continue
 
@@ -54,7 +55,7 @@ class ErrorDistribution(ADistribution):
                 vor_region = voronoi.regions[vor_region_index]
 
                 if len(vor_region) < 1:
-                    complete_regions_generators.add(generator)
+                    final_generators.add(generator)
                     continue
 
                 vertices = []
@@ -77,7 +78,7 @@ class ErrorDistribution(ADistribution):
 
                 if infinite:
                     # oblast je mimo obrázek, není nutné se jí zabývat
-                    complete_regions_generators.add(generator)
+                    final_generators.add(generator)
                     continue
 
                 points = [Point2D(round(vertex[0]), round(vertex[1])) for vertex in vertices]
@@ -85,7 +86,7 @@ class ErrorDistribution(ADistribution):
 
                 if polygon.area < self.MIN_AREA_SIZE:
                     # oblast polygonu menší než minimální povolená, polygon se dále nedělí
-                    complete_regions_generators.add(generator)
+                    final_generators.add(generator)
                     continue
 
                 region_standard_deviation = self.__get_polygon_color_standard_deviation(points, generator,
@@ -110,7 +111,7 @@ class ErrorDistribution(ADistribution):
                     coordinates.append([new_point.get_x(), new_point.get_y()])
 
                 else:
-                    complete_regions_generators.add(generator)
+                    final_generators.add(generator)
 
         return [Point2D(coordinate[0], coordinate[1]) for coordinate in coordinates]
 

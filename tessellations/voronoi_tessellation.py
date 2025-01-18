@@ -8,7 +8,7 @@ from util.geometry_utils import *
 
 
 class VoronoiTessellation(ATessellation):
-    def generate_regions(self, points: list[Point2D], image: ImageFile) -> list[ARegion]:
+    def generate_regions(self, points: list[Point2D], image: Image) -> list[ARegion]:
         # přidání okrajových bodů, aby nebyly uvnitř obrázku vytvářeny nekonvexní regiony
         image_longer_side = max(image.width, image.height)
         top_left = Point2D(-image_longer_side * 4, -image_longer_side * 4)

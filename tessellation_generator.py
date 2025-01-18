@@ -7,7 +7,7 @@ from geometry.a_region import *
 
 
 class TesellationGenerator:
-    def __init__(self, points: list[Point2D], image: ImageFile, tessellation_type: TessellationType):
+    def __init__(self, points: list[Point2D], image: Image, tessellation_type: TessellationType):
         self.__points = points
         self.__image = image
 

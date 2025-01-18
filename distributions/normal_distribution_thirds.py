@@ -1,5 +1,5 @@
 import numpy as np
-from PIL import ImageFile
+from PIL import Image
 
 from distributions.a_distribution import ADistribution
 from geometry.point_2d import *
@@ -9,9 +9,8 @@ from util.geometry_utils import is_point_in_image
 class NormalDistributionThirds(ADistribution):
 
     POINT_COUNT_MULTIPLIER = 100_000
-    ST_DEV_DISTANCE_DIVISOR = 2
 
-    def generate_points(self, image: ImageFile, x_min: int, x_max: int, y_min: int, y_max: int) -> list[Point2D]:
+    def generate_points(self, image: Image, x_min: int, x_max: int, y_min: int, y_max: int) -> list[Point2D]:
         point_count = round(math.log((image.width * image.height * self.POINT_COUNT_MULTIPLIER) ** 2, 1.05)) * 2
         points = []
 
@@ -26,10 +25,10 @@ class NormalDistributionThirds(ADistribution):
         # většina bodů bude vygenerována do vzdálenosti mezi střední hodnotou
         # a středem na ose x mezi středními hodnotami
         # malé procento bodů bude vygenerováno dále
-        st_dev_x = (centers[1].get_x() - centers[0].get_x()) / self.ST_DEV_DISTANCE_DIVISOR
+        st_dev_x = (centers[1].get_x() - centers[0].get_x()) / 2
 
-        # směrodatná odchylka y je čtvrtina ze vzdálenosti na ose y mezi středními hodnotami
-        st_dev_y = (centers[2].get_y() - centers[0].get_y()) / self.ST_DEV_DISTANCE_DIVISOR
+        # směrodatná odchylka y je polovina ze vzdálenosti na ose y mezi středními hodnotami
+        st_dev_y = (centers[2].get_y() - centers[0].get_y()) / 2
 
         for center in centers:
             # okolo každé střední hodnoty vygenerovat čtvrtinu bodů

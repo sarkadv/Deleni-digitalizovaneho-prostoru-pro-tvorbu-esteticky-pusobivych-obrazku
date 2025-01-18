@@ -2,7 +2,7 @@ import random
 import sys
 from typing import Tuple
 
-import PIL.Image as Image
+from PIL import Image
 
 from shapely import Polygon, LineString
 from shapely.geometry import Point, MultiPoint
@@ -199,7 +199,7 @@ def split_polygon(vertices: list[Point2D]) -> list[list[Point2D]]:
     return result
 
 
-def apply_convolution(original_matrix: list[list[float]], convolution_matrix: list[list[float]]) -> list[list[float]]:
+def convolute(original_matrix: list[list[float]], convolution_matrix: list[list[float]]) -> list[list[float]]:
     # výsledná matice má o 2 řádky a sloupce méně
     result_height = len(original_matrix) - 2
     result_width = len(original_matrix[0]) - 2

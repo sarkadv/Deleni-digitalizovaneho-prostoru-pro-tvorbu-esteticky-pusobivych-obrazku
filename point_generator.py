@@ -1,5 +1,3 @@
-from PIL import Image
-
 from distributions.error_distribution import ErrorDistribution
 from distributions.laplace_distribution_area import LaplaceDistributionArea
 from distributions.laplace_distribution_gradient import LaplaceDistributionGradient
