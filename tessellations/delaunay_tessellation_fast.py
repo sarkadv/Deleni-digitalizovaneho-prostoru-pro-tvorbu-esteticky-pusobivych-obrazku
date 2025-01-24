@@ -1,5 +1,5 @@
 from tessellations.a_delaunay_tessellation import ADelaunayTessellation
-from util.color_utils import find_points_most_common_color
+from util.color_utils import find_points_most_common_colors
 from util.geometry_utils import *
 
 
@@ -12,4 +12,4 @@ class DelaunayTessellationFast(ADelaunayTessellation):
 
         # v každém polygonu se nalezne pouze daný počet bodů
         points = find_points_in_polygon(vertices, region_chosen_points_count, image)
-        return find_points_most_common_color(image, points)[0]
+        return find_points_most_common_colors(image, points)[0]

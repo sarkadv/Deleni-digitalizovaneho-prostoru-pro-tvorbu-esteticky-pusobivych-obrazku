@@ -25,11 +25,12 @@ class ErrorDistribution(ADistribution):
 
         # přidání okrajových bodů, aby nebyly uvnitř obrázku vytvářeny nekonvexní regiony
         image_longer_side = max(image.width, image.height)
+        far_points = [Point2D(-image_longer_side * 4, -image_longer_side * 4),
+                      Point2D(image_longer_side * 4, -image_longer_side * 4),
+                      Point2D(image_longer_side * 4, image_longer_side * 4),
+                      Point2D(-image_longer_side * 4, image_longer_side * 4)]
 
-        starter_points.append(Point2D(-image_longer_side * 4, -image_longer_side * 4))
-        starter_points.append(Point2D(image_longer_side * 4, -image_longer_side * 4))
-        starter_points.append(Point2D(image_longer_side * 4, image_longer_side * 4))
-        starter_points.append(Point2D(-image_longer_side * 4, image_longer_side * 4))
+        starter_points.extend(far_points)
 
         coordinates = [[point.get_x(), point.get_y()] for point in starter_points]
 
@@ -72,8 +73,7 @@ class ErrorDistribution(ADistribution):
                         y_coord = round(vertex[1])
                         vertices.append((x_coord, y_coord))
 
-                        if not intersects_bounds and \
-                                (x_coord < 0 or x_coord >= image.width or y_coord < 0 or y_coord >= image.height):
+                        if not is_point_in_image(image, Point2D(x_coord, y_coord)):
                             intersects_bounds = True
 
                 if infinite:

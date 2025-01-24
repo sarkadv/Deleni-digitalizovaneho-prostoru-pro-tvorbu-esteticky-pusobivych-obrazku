@@ -11,19 +11,10 @@ from util.geometry_utils import *
 class ADelaunayTessellation(ATessellation):
     def generate_regions(self, points: list[Point2D], image: Image) -> list[ARegion]:
         # přidání okrajových bodů, aby byly vytvořeny trojúhelníky po celém obrazu
-        top_left = Point2D(0, 0)
-        top_right = Point2D(image.width - 1, image.height - 1)
-        bottom_left = Point2D(0, image.height - 1)
-        bottom_right = Point2D(image.width - 1, 0)
+        bounds = [Point2D(0, 0), Point2D(image.width - 1, image.height - 1),
+                  Point2D(0, image.height - 1), Point2D(image.width - 1, 0)]
 
-        if top_left not in points:
-            points.append(top_left)
-        if top_right not in points:
-            points.append(top_right)
-        if bottom_left not in points:
-            points.append(bottom_left)
-        if bottom_right not in points:
-            points.append(bottom_right)
+        points.extend(bounds)
 
         coordinates = [[point.get_x(), point.get_y()] for point in points]
 

@@ -5,15 +5,11 @@ from typing import Tuple
 import cairo
 
 from geometry.point_2d import Point2D
-from util.geometry_utils import create_convolution_padding, convolute
-
-GAUSSIAN_CONVOLUTION_MATRIX = [[1 / 16, 1 / 8, 1 / 16],
-                               [1 / 8, 1 / 4, 1 / 8],
-                               [1 / 16, 1 / 8, 1 / 16]]
+from util.convolution import create_convolution_padding, convolute, GAUSSIAN_CONVOLUTION_MATRIX
 
 
 def draw_polygon(context: cairo.Context, vertices: list[Point2D], color: Tuple[float, float, float],
-                 border_color: Tuple[float, float, float]) -> None:
+                 border_color: Tuple[float, float, float], border_width: int = 1) -> None:
     points = [(vertex.get_x(), vertex.get_y()) for vertex in vertices]
 
     # nakreslení výplně
@@ -24,10 +20,10 @@ def draw_polygon(context: cairo.Context, vertices: list[Point2D], color: Tuple[f
         context.line_to(*point)
     context.close_path()  # uzavření polygonu
 
-    context.fill_preserve()     # výplň
+    context.fill_preserve()  # výplň
 
     context.set_source_rgb(*border_color)
-    context.set_line_width(1)  # nakreslení obrysu
+    context.set_line_width(border_width)  # nakreslení obrysu
     context.stroke()
 
 
@@ -79,17 +75,15 @@ def draw_polygon_with_gradient(context: cairo.Context, vertices: list[Point2D], 
     context.stroke()
 
 
-def draw_background(context: cairo.Context, width: int, height: int, color: Tuple[float, float, float]) -> None:
-    draw_polygon(context, [Point2D(0, 0), Point2D(width, 0), Point2D(width, height), Point2D(0, height)], color, color)
-
-
 def draw_paper_texture(context: cairo.Context, width: int, height: int) -> None:
-    # velikost jedné částice podle rozměrů obrázku
+    # velikost jedné částice šumu podle rozměrů obrázku
     noise_particle_size = int(math.log(width * height, 100))
 
-    # intenzita náhodných částic po celém obrázku
-    noise_intensity = [[random.uniform(0.05, 0.1) for _ in range(int(width / noise_particle_size))]
-                       for _ in range(int(height / noise_particle_size))]
+    particles_x = int(width / noise_particle_size)   # počet částic na šířku
+    particles_y = int(height / noise_particle_size)  # počet částic na výšku
+
+    # náhodná intenzita částic po celém obrázku
+    noise_intensity = [[random.uniform(0.05, 0.1) for _ in range(particles_x)] for _ in range(particles_y)]
 
     # Gaussovské rozostření intenzity
     noise_intensity_gaussian = create_convolution_padding(noise_intensity)

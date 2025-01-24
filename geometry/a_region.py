@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from PIL import Image
 
 from geometry.point_2d import *
-from util.color_utils import find_points_most_common_color
+from util.color_utils import find_points_most_common_colors, find_complementary_color
 from util.image_drawer import draw_polygon, draw_polygon_with_gradient
 from util.geometry_utils import find_points_in_polygon, split_polygon
 
@@ -24,19 +24,21 @@ class ARegion(ABC):
     def draw_basic(self, context: cairo.Context) -> None:
         draw_polygon(context, self.__vertices, self.__base_color, self.__base_color)
 
-    @abstractmethod
-    def draw_grid(self, context: cairo.Context, border_width: float,
+    def draw_grid(self, context: cairo.Context, border_width: int,
                   border_color_rgb: Tuple[float, float, float], colorful: bool) -> None:
 
-        pass
+        if len(self.get_vertices()) == 0:
+            return
 
-    @abstractmethod
-    def draw_multiple_shapes(self, context: cairo.Context) -> None:
-        pass
+        # nakreslení obrysu
+        if not colorful:
+            # všechny obrysy stejná barva
+            border_color = border_color_rgb
+        else:
+            # obrys každé oblasti může být jiný
+            border_color = find_complementary_color(self.get_base_color())
 
-    @abstractmethod
-    def draw_rectangle_with_oval(self, context: cairo.Context, image: Image) -> None:
-        pass
+        draw_polygon(context, self.get_vertices(), self.get_base_color(), border_color, border_width)
 
     def draw_gradients(self, context: cairo.Context, image: Image) -> None:
         polygons = split_polygon(self.__vertices)
@@ -59,8 +61,8 @@ class ARegion(ABC):
             return
 
         # nalezení nejčastějších barev v polygonech
-        start_color = find_points_most_common_color(image, points1)[0]
-        end_color = find_points_most_common_color(image, points2)[0]
+        start_color = find_points_most_common_colors(image, points1)[0]
+        end_color = find_points_most_common_colors(image, points2)[0]
 
         # nalezení nejvzdálenějších vrcholů (každý z jednoho polygonu)
         max_distance = -sys.maxsize
@@ -96,6 +98,14 @@ class ARegion(ABC):
         color_b = min(self.__base_color[2] + self.PAPER_CHANNEL_ADDITION * 5/6, 1)
 
         draw_polygon(context, self.__vertices, (color_r, color_g, color_b), (color_r, color_g, color_b))
+
+    @abstractmethod
+    def draw_multiple_shapes(self, context: cairo.Context) -> None:
+        pass
+
+    @abstractmethod
+    def draw_rectangle_with_oval(self, context: cairo.Context, image: Image) -> None:
+        pass
 
     def get_vertices(self) -> list[Point2D]:
         return self.__vertices

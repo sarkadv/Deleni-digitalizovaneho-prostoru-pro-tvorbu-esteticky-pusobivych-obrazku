@@ -57,7 +57,7 @@ def find_points_average_color(image: Image, points: list[Point2D]) -> Tuple[floa
     return sum_r, sum_g, sum_b
 
 
-def find_points_most_common_color(image: Image, points: list[Point2D], most_common_count: int = 1) \
+def find_points_most_common_colors(image: Image, points: list[Point2D], most_common_count: int = 1) \
         -> list[Tuple[float, float, float]]:
 
     if len(points) < 1:
@@ -170,34 +170,3 @@ def get_colors_ratio(image: Image, points: list[Point2D], color1: Tuple[float, f
 
     # vrácení poměru pixelů bližších k druhé barvě než k té první
     return color2_count / color1_count
-
-
-def make_colors_more_different(base_color: Tuple[float, float, float],
-                               different_color: Tuple[float, float, float],
-                               difference_multiplier: float,
-                               min_difference: float = 0.03) -> Tuple[float, float, float]:
-
-    # nová barva je kopie rozdílné barvy od základní
-    new_color = list(different_color)
-    length = min(len(base_color), len(different_color))
-
-    for i in range(length):
-        # rozdíl mezi původní a rozdílnou barvou
-        difference = base_color[i] - different_color[i]
-
-        if abs(difference) < min_difference:
-            if difference < 0:
-                difference = -min_difference
-            else:
-                difference = min_difference
-
-        # zvětšení rozdílu mezi novou a původní barvou
-        new_color[i] = different_color[i] - difference * difference_multiplier
-
-        # nová barva musí mít složky v intervalu 0-1
-        new_color[i] = min(max(new_color[i], 0), 1)
-
-    return tuple(new_color)
-
-
-

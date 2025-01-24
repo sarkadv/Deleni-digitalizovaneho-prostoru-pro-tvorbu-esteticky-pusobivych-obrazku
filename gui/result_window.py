@@ -90,7 +90,6 @@ class ResultWindow(tk.Toplevel):
             try:
                 self.__generated_image.save(filename, "PNG")    # uložení do .png souboru
 
-                print("Vygenerovaný obrázek uložen do souboru: " + filename)
                 messagebox.showinfo("Success", "Vygenerovaný obrázek uložen do souboru:\n" + filename)
 
             except IOError as e:

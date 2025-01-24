@@ -5,11 +5,10 @@ from scipy.spatial import Delaunay, KDTree
 from distributions.a_distribution import *
 from geometry.pixel import Pixel
 from geometry.point_2d import *
-from util.geometry_utils import convolute, create_convolution_padding
+from util.convolution import convolute, create_convolution_padding, LAPLACE_CONVOLUTION_MATRIX
 
 
 class ALaplaceDistribution(ADistribution):
-    CONVOLUTION_MATRIX = [[0, 1, 0], [1, -4, 1], [0, 1, 0]]     # konvoluční jádro
     POINT_COUNT_MULTIPLIER = 0.03   # procento bodů s nejvyšší hodnotou gradientu, které budou považovány za hrany
 
     AREA_DIVISOR = 500
@@ -30,9 +29,9 @@ class ALaplaceDistribution(ADistribution):
         r_channel, g_channel, b_channel = self.__separate_color_channels(image)
 
         # výpočet Laplaceova filtru odděleně pro všechny kanály
-        laplace_r = convolute(r_channel, self.CONVOLUTION_MATRIX)
-        laplace_g = convolute(g_channel, self.CONVOLUTION_MATRIX)
-        laplace_b = convolute(b_channel, self.CONVOLUTION_MATRIX)
+        laplace_r = convolute(r_channel, LAPLACE_CONVOLUTION_MATRIX)
+        laplace_g = convolute(g_channel, LAPLACE_CONVOLUTION_MATRIX)
+        laplace_b = convolute(b_channel, LAPLACE_CONVOLUTION_MATRIX)
 
         pixels = []
 
