@@ -23,16 +23,17 @@ class QuadtreeTessellation(ATessellation):
         while len(stack) > 0:
             region = stack.pop()
 
-            # rohy regionu v pořadí NW, NE, SW, SE
-            corners = [[region.get_vertices()[0], region.get_vertices()[1]],
-                       [region.get_vertices()[3], region.get_vertices()[2]]]
+            point_NW = region.get_vertices()[0]
+            point_NE = region.get_vertices()[1]
+            point_SE = region.get_vertices()[2]
+            point_SW = region.get_vertices()[3]
 
             average_color = get_rectangle_average_color(region.get_vertices(), image)
             region.set_base_color(average_color)
 
             # výpočet obsahu obdélníku
-            side_length_a = corners[0][1].get_x() - corners[0][0].get_x()
-            side_length_b = corners[1][0].get_y() - corners[0][0].get_y()
+            side_length_a = point_NE.get_x() - point_NW.get_x()
+            side_length_b = point_SW.get_y() - point_NW.get_y()
             area = side_length_a * side_length_b
 
             if area < self.MIN_AREA:
@@ -50,24 +51,24 @@ class QuadtreeTessellation(ATessellation):
             # rozdělení na 4 obdélníky
 
             # rozdělení v polovině v obou osách
-            x_division = round((corners[0][1].get_x() - corners[0][0].get_x()) / 2) + corners[0][0].get_x()
-            y_division = round((corners[1][1].get_y() - corners[0][0].get_y()) / 2) + corners[0][0].get_y()
+            x_division = round((point_NE.get_x() - point_NW.get_x()) / 2) + point_NW.get_x()
+            y_division = round((point_SW.get_y() - point_NW.get_y()) / 2) + point_NW.get_y()
 
             # levý horní obdélník
-            corners_NW = [corners[0][0], Point2D(x_division, corners[0][0].get_y()),
-                          Point2D(x_division, y_division), Point2D(corners[0][0].get_x(), y_division)]
+            corners_NW = [point_NW, Point2D(x_division, point_NW.get_y()),
+                          Point2D(x_division, y_division), Point2D(point_NW.get_x(), y_division)]
 
             # pravý horní obdélník
-            corners_NE = [Point2D(x_division, corners[0][1].get_y()), corners[0][1],
-                          Point2D(corners[0][1].get_x(), y_division), Point2D(x_division, y_division)]
+            corners_NE = [Point2D(x_division, point_NE.get_y()), point_NE,
+                          Point2D(point_NE.get_x(), y_division), Point2D(x_division, y_division)]
 
             # pravý dolní obdélník
-            corners_SE = [Point2D(x_division, y_division), Point2D(corners[1][1].get_x(), y_division),
-                          corners[1][1], Point2D(x_division, corners[1][1].get_y())]
+            corners_SE = [Point2D(x_division, y_division), Point2D(point_SE.get_x(), y_division),
+                          point_SE, Point2D(x_division, point_SE.get_y())]
 
             # levý dolní obdélník
-            corners_SW = [Point2D(corners[1][0].get_x(), y_division), Point2D(x_division, y_division),
-                          Point2D(x_division, corners[1][0].get_y()), corners[1][0]]
+            corners_SW = [Point2D(point_SW.get_x(), y_division), Point2D(x_division, y_division),
+                          Point2D(x_division, point_SW.get_y()), point_SW]
 
             child_NW = QuadtreeRegion(corners_NW, average_color)
             child_NE = QuadtreeRegion(corners_NE, average_color)
