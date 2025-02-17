@@ -70,10 +70,10 @@ class QuadtreeTessellation(ATessellation):
             corners_SW = [Point2D(point_SW.get_x(), y_division), Point2D(x_division, y_division),
                           Point2D(x_division, point_SW.get_y()), point_SW]
 
-            child_NW = QuadtreeRegion(corners_NW, average_color)
-            child_NE = QuadtreeRegion(corners_NE, average_color)
-            child_SE = QuadtreeRegion(corners_SE, average_color)
-            child_SW = QuadtreeRegion(corners_SW, average_color)
+            child_NW = QuadtreeRegion(corners_NW, (0, 0, 0))
+            child_NE = QuadtreeRegion(corners_NE, (0, 0, 0))
+            child_SE = QuadtreeRegion(corners_SE, (0, 0, 0))
+            child_SW = QuadtreeRegion(corners_SW, (0, 0, 0))
 
             # uložení potomků na zásobník
             stack.extend([child_NW, child_NE, child_SE, child_SW])

@@ -3,7 +3,6 @@ from tessellations.delaunay_tessellation_better_colors import DelaunayTessellati
 from tessellations.delaunay_tessellation_fast import DelaunayTessellationFast
 from tessellations.quadtree_tessellation import QuadtreeTessellation
 from tessellations.voronoi_tessellation import *
-from geometry.a_region import *
 
 
 class TesellationGenerator:
