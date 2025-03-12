@@ -1,7 +1,10 @@
 - INSTALACE PYTHON 3 -
-Pro spuštění programu je nutné mít nainstalovaný interpreter jazyka Python verze 3,
-který je možné stáhnout na adrese:
-https://www.python.org/downloads/
+Pro spuštění programu je nutné mít nainstalovaný interpreter jazyka Python.
+Preferovaná a otestovaná verze je 3.11, kterou je možné stáhnout na adrese:
+https://www.python.org/downloads/release/python-3119/
+
+Pro novější nebo starší verze nemusí být k dispozici / kompatibilitní
+použité knihovny!
 
 ---------------------------------------------------------------------------------
 
