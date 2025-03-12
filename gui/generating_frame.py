@@ -18,7 +18,7 @@ class GeneratingFrame(tk.Frame):
         self.__logo_label = tk.Label(self, padx=15, pady=15, image=self.__logo)
         self.__logo_label.pack(pady=10)
 
-        self.__progress_label = tk.Label(self, text="Začíná generování obrázku...")
+        self.__progress_label = tk.Label(self, text="Generování obrázku...")
         self.__progress_label.pack(pady=10)
 
         self.__separator = ttk.Separator(self, orient='horizontal')

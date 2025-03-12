@@ -3,6 +3,7 @@ import sys
 from typing import Tuple
 
 from PIL import Image
+from scipy.spatial import KDTree
 
 from shapely import Polygon, LineString
 from shapely.geometry import Point, MultiPoint
@@ -165,15 +166,15 @@ def split_polygon(vertices: list[Point2D]) -> list[list[Point2D]]:
         vertex1 = vertices[i]
         vertex2 = vertices[(i + 1) % len(vertices)]
 
-        center = vertex1.line_center(vertex2)   # střed aktuální strany
-        distance = center.euclidean_distance(center1)   # vzdálenost aktuálního středu od prvního středu
+        center = vertex1.line_center(vertex2)  # střed aktuální strany
+        distance = center.euclidean_distance(center1)  # vzdálenost aktuálního středu od prvního středu
 
         if distance > center_max_distance:
             center_max_distance = distance
             center2 = center
 
     polygon = Polygon([[vertex.get_x(), vertex.get_y()] for vertex in vertices])
-    line = LineString([[center1.get_x(), center1.get_y()], [center2.get_x(), center2.get_y()]]) # dělicí přímka
+    line = LineString([[center1.get_x(), center1.get_y()], [center2.get_x(), center2.get_y()]])  # dělicí přímka
 
     # rozdělení polygonu dělicí přímkou
     split_polygons = []
@@ -189,7 +190,7 @@ def split_polygon(vertices: list[Point2D]) -> list[list[Point2D]]:
             split_polygons.append(list(geom.exterior.coords)[:-1])
     else:
         # přímka nerozdělila polygon (např. polygon příliš malý)
-        return [vertices]   # vrácení původního polygonu
+        return [vertices]  # vrácení původního polygonu
 
     result = []
     for polygon in split_polygons:
@@ -197,3 +198,28 @@ def split_polygon(vertices: list[Point2D]) -> list[list[Point2D]]:
         result.append([Point2D(round(vertex[0]), round(vertex[1])) for vertex in polygon])
 
     return result
+
+
+def remove_similar_points(points: list[Point2D], min_distance_between_points: int) -> list[Point2D]:
+    # vytvoření datové struktury KD-tree z bodů
+    point_tuples = [(point.get_x(), point.get_y()) for point in points]
+    tree = KDTree(point_tuples)
+
+    unique_points = []
+    visited_indices = set()  # indexy již nepotřebných bodů
+
+    for i in range(len(point_tuples)):
+        point = point_tuples[i]
+
+        if i in visited_indices:
+            continue
+
+        unique_points.append(points[i])
+
+        # nalezení všech bodů, které jsou blízko aktuálního bodu
+        nearby_points_indices = tree.query_ball_point(point, min_distance_between_points)
+
+        for point_index in nearby_points_indices:
+            visited_indices.add(point_index)
+
+    return unique_points

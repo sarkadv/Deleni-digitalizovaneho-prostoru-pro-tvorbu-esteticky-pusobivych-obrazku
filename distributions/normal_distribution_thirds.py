@@ -3,14 +3,17 @@ from PIL import Image
 
 from distributions.a_distribution import ADistribution
 from geometry.point_2d import *
-from util.geometry_utils import is_point_in_image
+from util.geometry_utils import is_point_in_image, remove_similar_points
 
 
 class NormalDistributionThirds(ADistribution):
 
     POINT_COUNT_MULTIPLIER = 100_000
+    MIN_DISTANCE_BETWEEN_POINTS = 0
+    DISTANCE_DIVISOR = 100
 
     def generate_points(self, image: Image, x_min: int, x_max: int, y_min: int, y_max: int) -> list[Point2D]:
+        self.MIN_DISTANCE_BETWEEN_POINTS = int(min(image.width, image.height) / self.DISTANCE_DIVISOR)
         point_count = round(math.log((image.width * image.height * self.POINT_COUNT_MULTIPLIER) ** 2, 1.05)) * 2
         points = []
 
@@ -43,7 +46,9 @@ class NormalDistributionThirds(ADistribution):
             if is_point_in_image(image, point):
                 result.add(point)
 
-        return list(result)
+        # odstranění příliš blízkých bodů
+        result = remove_similar_points(list(result), self.MIN_DISTANCE_BETWEEN_POINTS)
+        return result
 
     def __generate_normal_distribution_points(self, center: Point2D, point_count: int,
                                               st_dev_x: float, st_dev_y: float) -> list[Point2D]:

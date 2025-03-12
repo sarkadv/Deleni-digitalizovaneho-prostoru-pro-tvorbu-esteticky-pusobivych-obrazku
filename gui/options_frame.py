@@ -12,6 +12,7 @@ from enums.tessellation_type import TessellationType
 class OptionsFrame(tk.Frame):
     NAME = "options_frame"
     IMG_INPUT_FOLDER = "img_input/"
+    MAX_GUI_FILENAME_LENGTH = 20
 
     def __init__(self, parent: tk.Frame, controller):
         tk.Frame.__init__(self, parent)
@@ -69,8 +70,14 @@ class OptionsFrame(tk.Frame):
     def configure_file_label(self, filename: str) -> None:
         if filename == "":
             self.__file_label.configure(text="Vybraný obrázek: X")
-        else:
-            self.__file_label.configure(text="Vybraný obrázek: " + os.path.basename(filename))
+            return
+
+        label = os.path.basename(filename)
+
+        if len(label) > self.MAX_GUI_FILENAME_LENGTH:
+            label = label[:self.MAX_GUI_FILENAME_LENGTH] + "..."
+
+        self.__file_label.configure(text="Vybraný obrázek: " + label)
 
     def show_distribution_menu(self, tessellation: TessellationType) -> None:
         self.__distribution_string = tk.StringVar(self, value="Vybrat rozdělení bodů")

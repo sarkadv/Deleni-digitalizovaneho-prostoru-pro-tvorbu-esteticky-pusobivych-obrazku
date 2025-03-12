@@ -1,19 +1,20 @@
 from typing import Tuple
 
-from scipy.spatial import Delaunay, KDTree
+from scipy.spatial import Delaunay
 
 from distributions.a_distribution import *
 from geometry.pixel import Pixel
 from geometry.point_2d import *
 from util.convolution import convolute, create_convolution_padding, LAPLACE_CONVOLUTION_MATRIX
+from util.geometry_utils import remove_similar_points
 
 
 class ALaplaceDistribution(ADistribution):
-    POINT_COUNT_MULTIPLIER = 0.03   # procento bodů s nejvyšší hodnotou gradientu, které budou považovány za hrany
+    POINT_COUNT_MULTIPLIER = 0.05   # procento bodů s nejvyšší hodnotou gradientu, které budou považovány za hrany
 
     AREA_DIVISOR = 500
     SIDE_DIVISOR = 20
-    DISTANCE_DIVISOR = 100
+    DISTANCE_DIVISOR = 65
 
     MAX_TRIANGLE_AREA = 0    # maximální obsah trojúhelníku
     MAX_SIDE_LENGTH = 0     # maximální délka strany trojúhelníku
@@ -44,9 +45,6 @@ class ALaplaceDistribution(ADistribution):
         keep_count = int(len(pixels) * self.POINT_COUNT_MULTIPLIER)
         pixels = pixels[:keep_count]
 
-        # ponecháme pouze část pixelů, které jsou od sebe dostatečně daleko (aby nevznikaly moc malé trojúhelníky)
-        pixels = self.__remove_similar_pixels(pixels, self.MIN_DISTANCE_BETWEEN_POINTS)
-
         # body pro DT
         coordinates = [[pixel.get_x(), pixel.get_y()] for pixel in pixels]
 
@@ -76,6 +74,9 @@ class ALaplaceDistribution(ADistribution):
                         change = True
 
         points = [Point2D(coordinate[0], coordinate[1]) for coordinate in coordinates]
+
+        # ponecháme pouze část bodů, které jsou od sebe dostatečně daleko (aby nevznikaly moc malé trojúhelníky)
+        points = remove_similar_points(points, self.MIN_DISTANCE_BETWEEN_POINTS)
         return points
 
     @abstractmethod
@@ -102,27 +103,3 @@ class ALaplaceDistribution(ADistribution):
         b_channel = create_convolution_padding(b_channel)
 
         return r_channel, g_channel, b_channel
-
-    def __remove_similar_pixels(self, pixels: list[Pixel], min_distance_between_points: int) -> list[Pixel]:
-        # vytvoření datové struktury KD-tree z bodů
-        points = [(pixel.get_x(), pixel.get_y()) for pixel in pixels]
-        tree = KDTree(points)
-
-        unique_points = []
-        visited_indices = set()     # indexy již nepotřebných bodů
-
-        for i in range(len(points)):
-            point = points[i]
-
-            if i in visited_indices:
-                continue
-
-            unique_points.append(pixels[i])
-
-            # nalezení všech bodů, které jsou blízko aktuálního bodu
-            nearby_points_indices = tree.query_ball_point(point, min_distance_between_points)
-
-            for point_index in nearby_points_indices:
-                visited_indices.add(point_index)
-
-        return unique_points
