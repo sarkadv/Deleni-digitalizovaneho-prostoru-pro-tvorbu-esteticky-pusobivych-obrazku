@@ -3,7 +3,7 @@ Pro spuštění programu je nutné mít nainstalovaný interpreter jazyka Python
 Preferovaná a otestovaná verze je 3.11, kterou je možné stáhnout na adrese:
 https://www.python.org/downloads/release/python-3119/
 
-Pro novější nebo starší verze nemusí být k dispozici / kompatibilitní
+Pro novější nebo starší verze nemusí být k dispozici / kompatibilní
 použité knihovny!
 
 ---------------------------------------------------------------------------------
@@ -19,13 +19,15 @@ Knihovna Tkinter je už většinou nainstalovaná spolu s celým Pythonem.
 Pokud se tak nestalo, je potřeba ji doinstalovat.
 
     a) MacOS
-    Je nutné použít balíčkovací systém Homebrew (instalace podle https://brew.sh).
-    Poté pro instalaci stačí příkaz:
-    "brew install python-tk".
+    Na MacOS je knihovna Tkinter vždy nainstalována spolu s Pythonem.
 
     b) Linux (Ubuntu / Debian)
     Pro instalaci stačí příkaz:
-    "apt-get install python3-tk".
+    "sudo apt-get install python3-tk".
+
+    Pokud modul Tkinter ani poté není programem detekován,
+    je možné situaci opravit příkazem "sudo apt-get install tk-dev" a
+    reinstalací Pythonu.
 
     c) Windows
     Je potřeba znovu spustit Python installer a opravit instalaci Pythonu.
@@ -39,7 +41,7 @@ Pokud se tak nestalo, je potřeba ji doinstalovat.
 
     b) Linux (Ubuntu / Debian)
     Nutné použít příkaz:
-    "sudo apt install libcairo2-dev pkg-config python3-dev"
+    "sudo apt-get install libcairo2-dev pkg-config python3-dev"
 
     c) Windows
     Stačí pouze společný příkaz o řádku níže.
