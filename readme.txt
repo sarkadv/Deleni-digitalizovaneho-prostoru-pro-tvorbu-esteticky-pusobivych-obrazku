@@ -12,11 +12,12 @@ použité knihovny!
 1) Pillow, NumPy, SciPy, Shapely
 V adresáři programu je nutné spustit příkaz:
 "pip install -r requirements.txt" nebo "pip3 install -r requirements.txt"
-(záleží na nastavení aliasu na konkrétním systému).
+(záleží na nastavení aliasu pip / pip3 na konkrétním systému).
 
 2) Tkinter
 Knihovna Tkinter je už většinou nainstalovaná spolu s celým Pythonem.
-Pokud se tak nestalo, je potřeba ji doinstalovat.
+Pokud se tak nestalo (program padá na chybě "Module Tkinter not found"),
+je potřeba ji doinstalovat.
 
     a) MacOS
     Na MacOS je knihovna Tkinter vždy nainstalována spolu s Pythonem.
@@ -35,7 +36,7 @@ Pokud se tak nestalo, je potřeba ji doinstalovat.
 
 3) Pycairo
     a) MacOS
-    Je nutné použít balíčkovací systém Homebrew (instalace podle https://brew.sh).
+    Je potřeba použít balíčkovací systém Homebrew (instalace podle https://brew.sh).
     Poté spustit příkaz:
     "brew install cairo pkg-config"
 
@@ -48,12 +49,12 @@ Pokud se tak nestalo, je potřeba ji doinstalovat.
 
 Nakonec společné pro všechny platformy - příkaz:
 "pip install pycairo" nebo "pip3 install pycairo"
-(záleží na nastavení aliasu na konkrétním systému).
+(záleží na nastavení aliasu pip / pip3 na konkrétním systému).
 
 ---------------------------------------------------------------------------------
 
 - SPUŠTĚNÍ PROGRAMU -
 V adresáři programu stačí spustit příkaz:
 "python main.py" nebo "python3 main.py"
-(záleží na nastavení aliasu na konkrétním systému).
+(záleží na nastavení aliasu pip / pip3 na konkrétním systému).
 
