@@ -5,7 +5,11 @@ from util.geometry_utils import remove_similar_points
 
 
 class UniformDistribution(ADistribution):
+    """
+    Třída reprezentující rozdělení bodů dle rovnoměrného rozložení.
+    """
 
+    # vhodně zvolené konstanty pro výpočet parametrů
     POINT_COUNT_MULTIPLIER = 100_000
     MIN_DISTANCE_BETWEEN_POINTS = 0
     DISTANCE_DIVISOR = 100

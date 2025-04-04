@@ -5,6 +5,11 @@ from geometry.point_2d import *
 
 
 class LaplaceDistributionLength(ALaplaceDistribution):
+    """
+    Třída reprezentuje rozdělení bodů dle Laplaceova operátoru.
+    Vzniklé trojúhelníky jsou dále děleny, jestliže mají příliš dlouhé strany.
+    """
+
     def split_triangle(self, points: list[Point2D], image: Image) -> list[Point2D]:
         if len(points) < 3:
             return []
@@ -21,6 +26,7 @@ class LaplaceDistributionLength(ALaplaceDistribution):
                 other = points[i + 1]
 
             if point.euclidean_distance(other) > self.MAX_SIDE_LENGTH:
+                # strana trojúhelníku příliš dlouhá
                 new_points.append(point.line_center(other))
 
         return new_points

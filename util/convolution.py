@@ -1,13 +1,26 @@
+from typing import Tuple
+
+from PIL.Image import Image
+
+# konvoluční jádro pro Gaussovské rozostření
 GAUSSIAN_CONVOLUTION_MATRIX = [[1 / 16, 1 / 8, 1 / 16],
                                [1 / 8, 1 / 4, 1 / 8],
                                [1 / 16, 1 / 8, 1 / 16]]
 
+# konvoluční jádro pro Laplaceův operátor
 LAPLACE_CONVOLUTION_MATRIX = [[0, 1, 0],
                               [1, -4, 1],
-                              [0, 1, 0]]     # konvoluční jádro
+                              [0, 1, 0]]
 
 
 def convolute(original_matrix: list[list[float]], convolution_matrix: list[list[float]]) -> list[list[float]]:
+    """
+    Provede diskrétní konvoluci nad danou maticí s daným konvolučním jádrem.
+    :param original_matrix: vstupní matice ke konvoluci
+    :param convolution_matrix: konvoluční jádro
+    :return: výsledek konvoluce nad vstupní maticí
+    """
+
     # výsledná matice má o 2 řádky a sloupce méně
     result_height = len(original_matrix) - 2
     result_width = len(original_matrix[0]) - 2
@@ -31,7 +44,39 @@ def convolute(original_matrix: list[list[float]], convolution_matrix: list[list[
     return result
 
 
+def separate_color_channels(image: Image) -> Tuple[list[list[float]], list[list[float]], list[list[float]]]:
+    """
+    :param image: obrázek
+    :return: tři matice s barevnou hodnotou obrázku v červené, zelené a modré složce
+    """
+
+    # inicializace 2D pole hodnot barev pro konvoluci
+    r_channel = [[0 for j in range(image.width)] for i in range(image.height)]
+    g_channel = [[0 for j in range(image.width)] for i in range(image.height)]
+    b_channel = [[0 for j in range(image.width)] for i in range(image.height)]
+
+    # i = řádek, j = sloupec
+    for i in range(image.height):
+        for j in range(image.width):
+            r, g, b = image.getpixel((j, i))
+            r_channel[i][j] = r
+            g_channel[i][j] = g
+            b_channel[i][j] = b
+
+    # padding matic po stranách
+    r_channel = create_convolution_padding(r_channel)
+    g_channel = create_convolution_padding(g_channel)
+    b_channel = create_convolution_padding(b_channel)
+
+    return r_channel, g_channel, b_channel
+
+
 def create_convolution_padding(original_matrix: list[list[float]]) -> list[list[float]]:
+    """
+    :param original_matrix: vstupní matice
+    :return: vstupní matice rozšířená o horní + dolní řádek, levý + pravý sloupec kvůli konvoluci
+    """
+
     width = len(original_matrix[0])
     height = len(original_matrix)
 

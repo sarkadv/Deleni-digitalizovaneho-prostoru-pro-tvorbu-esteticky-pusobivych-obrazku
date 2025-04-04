@@ -10,9 +10,14 @@ from util.geometry_utils import *
 
 
 class ErrorDistribution(ADistribution):
-    MAX_STANDARD_DEVIATION = 0.15  # maximální směrodatná odchylka barev regionu
-    MIN_AREA_SIZE = 0   # minimální obsah oblasti, vypočítá se při generování bodů
+    """
+    Třída představující rozdělení bodů získané dělením Voroného oblastí podle chyby (zde směrodatné odchylky).
+    """
 
+    MAX_STANDARD_DEVIATION = 0.15  # maximální směrodatná odchylka barev regionu
+    MIN_AREA_SIZE = 0   # minimální obsah oblasti - vypočteno za běhu
+
+    # vhodně zvolené konstanty pro výpočet parametrů
     MIN_AREA_SIZE_DIVISOR = 10_000
     POINT_COUNT_MULTIPLIER = 100_000
 
@@ -118,6 +123,15 @@ class ErrorDistribution(ADistribution):
     def __get_polygon_color_standard_deviation(self, vertices: list[Point2D], generator: Point2D,
                                                image: Image, bounds: list[Tuple[float, float]],
                                                intersects_bounds: bool) -> float:
+        """
+        Vypočte a vrátí odhad směrodatné odchylky barev v polygonu.
+        :param vertices: vrcholy polygonu
+        :param generator: generátor Voroného oblasti (polygonu)
+        :param image: vstupní obrázek
+        :param bounds: vrcholy hranic obrázku
+        :param intersects_bounds: zasahuje polygon do hranic obrázku?
+        :return: odhad směrodatné odchylky barev v polygonu
+        """
 
         # některé body polygonu
         points = self.__find_points_around_generator(image, vertices, generator, bounds, intersects_bounds)
@@ -125,6 +139,7 @@ class ErrorDistribution(ADistribution):
         if len(points) <= 1:
             return 0
 
+        # průměrná barva bodů
         average_color = find_points_average_color(image, points)
 
         sd_r = 0
@@ -145,6 +160,15 @@ class ErrorDistribution(ADistribution):
 
     def __find_points_around_generator(self, image: Image, points: list[Point2D], generator: Point2D,
                                        bounds: list[Tuple[float, float]], intersects_bounds: bool) -> list[Point2D]:
+        """
+        Nalezne a vrátí některé body ležící v polygonu za pomocí normálního rozdělení.
+        :param image: vstupní obrázek
+        :param points: vrcholy polygonu
+        :param generator: generátor Voroného oblasti (polygonu)
+        :param bounds: vrcholy hranic obrázku
+        :param intersects_bounds: zasahuje polygon do hranic obrázku?
+        :return: některé body ležící v polygonu
+        """
 
         vertices = [(point.get_x(), point.get_y()) for point in points]
 
@@ -153,6 +177,7 @@ class ErrorDistribution(ADistribution):
             cropped_polygon_vertices = crop_polygon_by_bounds(bounds, vertices)
             cropped_polygon = Polygon(cropped_polygon_vertices)
         else:
+            # celý polygon je zachován
             cropped_polygon_vertices = vertices
             cropped_polygon = Polygon(vertices)
 
@@ -186,6 +211,7 @@ class ErrorDistribution(ADistribution):
         normal_data_x = np.random.normal(generator.get_x(), st_dev_x, region_chosen_points_count)
         normal_data_y = np.random.normal(generator.get_y(), st_dev_y, region_chosen_points_count)
 
+        # množina výsledných bodů
         result = set()
 
         for i in range(region_chosen_points_count):

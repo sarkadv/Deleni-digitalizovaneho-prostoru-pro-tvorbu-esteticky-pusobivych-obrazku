@@ -1,8 +1,11 @@
 from enums.extended_enum import *
 
 
-# typy efektů
 class EffectType(ExtendedEnum):
+    """
+    Výčtový typ pro různé druhy efektů.
+    """
+
     BASIC = 'Žádný'
     GRID_ONE_COLOR = 'Mřížka - Jednobarevná'
     GRID_COLORFUL = 'Mřížka - Vícebarevná'

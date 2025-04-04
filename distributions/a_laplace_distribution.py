@@ -1,25 +1,29 @@
-from typing import Tuple
-
 from scipy.spatial import Delaunay
 
 from distributions.a_distribution import *
 from geometry.pixel import Pixel
 from geometry.point_2d import *
-from util.convolution import convolute, create_convolution_padding, LAPLACE_CONVOLUTION_MATRIX
+from util.convolution import convolute, LAPLACE_CONVOLUTION_MATRIX, separate_color_channels
 from util.geometry_utils import remove_similar_points
 
 
 class ALaplaceDistribution(ADistribution):
+    """
+    Abstraktní třída reprezentující rozdělení bodů dle Laplaceova operátoru.
+    """
+
     POINT_COUNT_MULTIPLIER = 0.05   # procento bodů s nejvyšší hodnotou gradientu, které budou považovány za hrany
 
+    # vhodně zvolené konstanty pro výpočet parametrů
     AREA_DIVISOR = 500
     SIDE_DIVISOR = 20
     DISTANCE_DIVISOR = 65
 
-    MAX_TRIANGLE_AREA = 0    # maximální obsah trojúhelníku
-    MAX_SIDE_LENGTH = 0     # maximální délka strany trojúhelníku
-    MAX_VERTEX_COLOR_DIFFERENCE = 0.85
-    MIN_DISTANCE_BETWEEN_POINTS = 0
+    MAX_TRIANGLE_AREA = 0    # maximální obsah trojúhelníku - vypočteno za běhu
+    MAX_SIDE_LENGTH = 0     # maximální délka strany trojúhelníku - vypočteno za běhu
+    MAX_VERTEX_COLOR_DIFFERENCE = 0.85  # maximální rozdíl barev ve vrcholech trojúhelníku
+
+    MIN_DISTANCE_BETWEEN_POINTS = 0     # minimální euklidovská vzdálenost mezi dvěma body - vypočteno za běhu
 
     def generate_points(self, image: Image, x_min: int, x_max: int, y_min: int, y_max: int) -> list[Point2D]:
         self.MAX_TRIANGLE_AREA = int((image.width * image.height) / self.AREA_DIVISOR)
@@ -27,7 +31,7 @@ class ALaplaceDistribution(ADistribution):
         self.MIN_DISTANCE_BETWEEN_POINTS = int(min(image.width, image.height) / self.DISTANCE_DIVISOR)
 
         # oddělení barevných kanálů
-        r_channel, g_channel, b_channel = self.__separate_color_channels(image)
+        r_channel, g_channel, b_channel = separate_color_channels(image)
 
         # výpočet Laplaceova filtru odděleně pro všechny kanály
         laplace_r = convolute(r_channel, LAPLACE_CONVOLUTION_MATRIX)
@@ -81,25 +85,11 @@ class ALaplaceDistribution(ADistribution):
 
     @abstractmethod
     def split_triangle(self, points: list[Point2D], image: Image) -> list[Point2D]:
+        """
+        Metoda zjistí, zda je nutné předaný trojúhelník rozdělit podle kritérií implementující třídy.
+        Pokud dojde k rozdělení, jsou nově vytvořené body vráceny.
+        :param points: aktuální vrcholy trojúhelníku
+        :param image: vstupní obrázek
+        :return: nově vytvořené body / prázdný seznam
+        """
         pass
-
-    def __separate_color_channels(self, image: Image) -> Tuple:
-        # inicializace 2D pole hodnot barev pro výpočet Laplaceova filtru
-        r_channel = [[0 for j in range(image.width)] for i in range(image.height)]
-        g_channel = [[0 for j in range(image.width)] for i in range(image.height)]
-        b_channel = [[0 for j in range(image.width)] for i in range(image.height)]
-
-        # i = řádek, j = sloupec
-        for i in range(image.height):
-            for j in range(image.width):
-                r, g, b = image.getpixel((j, i))
-                r_channel[i][j] = r
-                g_channel[i][j] = g
-                b_channel[i][j] = b
-
-        # padding matic po stranách
-        r_channel = create_convolution_padding(r_channel)
-        g_channel = create_convolution_padding(g_channel)
-        b_channel = create_convolution_padding(b_channel)
-
-        return r_channel, g_channel, b_channel

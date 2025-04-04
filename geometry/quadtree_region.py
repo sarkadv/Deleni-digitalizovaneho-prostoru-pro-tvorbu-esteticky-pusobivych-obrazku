@@ -13,6 +13,11 @@ from util.geometry_utils import find_polygon_centroid, find_rectangle_points
 
 
 class QuadtreeRegion(ARegion):
+    """
+    Třída představující jednu oblast kvadrantového stromu (obdélník).
+    """
+
+    # vhodně zvolené konstanty pro efekt obdélníku s oválem uvnitř
     MIN_RATIO = 0.25
     MAX_RATIO = 2
 
@@ -63,7 +68,7 @@ class QuadtreeRegion(ARegion):
             draw_polygon(context, vertices, self.get_base_color(), self.get_base_color())
 
     def draw_rectangle_with_oval(self, context: cairo.Context, image: Image):
-        points_x, points_y = find_rectangle_points(self.get_vertices(), False)
+        points_x, points_y = find_rectangle_points(self.get_vertices())
         points_2D = [Point2D(x, y) for x, y in zip(points_x, points_y)]
 
         most_common_colors = find_points_most_common_colors(image, points_2D, 2)

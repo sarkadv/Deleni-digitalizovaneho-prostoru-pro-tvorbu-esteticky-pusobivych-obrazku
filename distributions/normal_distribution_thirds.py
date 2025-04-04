@@ -7,7 +7,11 @@ from util.geometry_utils import is_point_in_image, remove_similar_points
 
 
 class NormalDistributionThirds(ADistribution):
+    """
+    Třída představující rozdělení bodů dle normálního rozložení a pravidla třetin.
+    """
 
+    # vhodně zvolené konstanty pro výpočet parametrů
     POINT_COUNT_MULTIPLIER = 100_000
     MIN_DISTANCE_BETWEEN_POINTS = 0
     DISTANCE_DIVISOR = 100
@@ -17,7 +21,7 @@ class NormalDistributionThirds(ADistribution):
         point_count = round(math.log((image.width * image.height * self.POINT_COUNT_MULTIPLIER) ** 2, 1.05)) * 2
         points = []
 
-        centers = [None, None, None, None]    # průsečíky z pravidla třetin, střední hodnoty normálních rozdělení
+        centers = [None, None, None, None]    # průsečíky z pravidla třetin = střední hodnoty normálních rozdělení
         # body ve směru hodinových ručiček od levého horního rohu
         centers[0] = Point2D(image.width * (1/3), image.height * (1/3))
         centers[1] = Point2D(image.width * (2/3), image.height * (1/3))
@@ -52,6 +56,14 @@ class NormalDistributionThirds(ADistribution):
 
     def __generate_normal_distribution_points(self, center: Point2D, point_count: int,
                                               st_dev_x: float, st_dev_y: float) -> list[Point2D]:
+        """
+        Normálním rozdělením vygeneruje a vrátí daný počet bodů.
+        :param center: střední hodnota
+        :param point_count: počet bodů ke generování
+        :param st_dev_x: směrodatná odchylka v ose x
+        :param st_dev_y: směrodatná odchylka v ose y
+        :return: seznam vygenerovaných bodů
+        """
 
         # vygenerování normálně rozložených bodů
         normal_data_x = np.random.normal(center.get_x(), st_dev_x, point_count)

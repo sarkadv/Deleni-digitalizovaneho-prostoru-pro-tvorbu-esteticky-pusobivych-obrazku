@@ -14,18 +14,34 @@ from util.geometry_utils import find_points_in_polygon, split_polygon
 
 
 class ARegion(ABC):
+    """
+    Třída představuje jednu oblast teselace.
+    """
 
-    PAPER_CHANNEL_ADDITION = 0.15
+    PAPER_CHANNEL_ADDITION = 0.15   # změna barvy pro efekt papíru
 
     def __init__(self, vertices: list[Point2D], base_color: Tuple[float, float, float]):
         self.__vertices = vertices
         self.__base_color = base_color
 
     def draw_basic(self, context: cairo.Context) -> None:
+        """
+        Vykreslí oblast jednou barvou (bez efektu).
+        :param context: grafický kontext
+        """
+
         draw_polygon(context, self.__vertices, self.__base_color, self.__base_color)
 
     def draw_grid(self, context: cairo.Context, border_width: int,
                   border_color_rgb: Tuple[float, float, float], colorful: bool) -> None:
+        """
+        Vykreslí oblast s obrysem.
+        :param context: grafický kontext
+        :param border_width: šířka obrysu
+        :param border_color_rgb: barva obrysu
+        :param colorful: true - obrys má rozdílnou barvu pro každou oblast
+                / false - obrysy všech oblastí mají stejnou barvu (border_color_rgb)
+        """
 
         if len(self.get_vertices()) == 0:
             return
@@ -41,6 +57,13 @@ class ARegion(ABC):
         draw_polygon(context, self.get_vertices(), self.get_base_color(), border_color, border_width)
 
     def draw_gradients(self, context: cairo.Context, image: Image) -> None:
+        """
+        Vykreslí oblast s lineárním gradientem.
+        :param context: grafický kontext
+        :param image: vstupní obrázek
+        """
+
+        # oblast rozdělena na dvě
         polygons = split_polygon(self.__vertices)
 
         if len(polygons) < 2:
@@ -90,6 +113,11 @@ class ARegion(ABC):
         draw_polygon_with_gradient(context, self.__vertices, start_vertex, end_vertex, start_color, end_color)
 
     def draw_paper(self, context: cairo.Context) -> None:
+        """
+        Vykreslí oblast s efektem papíru.
+        :param context: grafický kontext
+        """
+
         # zesvětlení barevných kanálů
         color_r = min(self.__base_color[0] + self.PAPER_CHANNEL_ADDITION, 1)
         color_g = min(self.__base_color[1] + self.PAPER_CHANNEL_ADDITION, 1)
@@ -101,17 +129,21 @@ class ARegion(ABC):
 
     @abstractmethod
     def draw_multiple_shapes(self, context: cairo.Context) -> None:
+        """
+        Náhodně vykreslí oblast kvadrantového stromu jako jeden ze čtyř možných tvarů.
+        Možné tvary jsou obdélník, kosodélník, trojúhelník a ovál.
+        :param context: grafický kontext
+        """
         pass
 
     @abstractmethod
     def draw_rectangle_with_oval(self, context: cairo.Context, image: Image) -> None:
+        """
+        Vykreslí oblast kvadrantového stromu jako obdélník s oválem uprostřed.
+        :param context: grafický kontext
+        :param image: vstupní obrázek
+        """
         pass
-
-    def get_vertices(self) -> list[Point2D]:
-        return self.__vertices
-
-    def get_base_color(self) -> Tuple[float, float, float]:
-        return self.__base_color
 
     def get_x_axis_length(self) -> int:
         min_x = min([point.get_x() for point in self.__vertices])
@@ -124,6 +156,12 @@ class ARegion(ABC):
         max_y = max([point.get_y() for point in self.__vertices])
 
         return max_y - min_y
+
+    def get_vertices(self) -> list[Point2D]:
+        return self.__vertices
+
+    def get_base_color(self) -> Tuple[float, float, float]:
+        return self.__base_color
 
     def set_base_color(self, base_color: Tuple[float, float, float]) -> None:
         if 0.0 <= all(base_color) <= 1.0:

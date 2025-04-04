@@ -10,6 +10,10 @@ from enums.distribution_type import *
 
 
 class PointGenerator:
+    """
+    Třída zodpovědná za vygenerování bodů do počáteční množiny teselace.
+    """
+
     def __init__(self, image: Image, distribution_type: DistributionType,
                  x_min: int, x_max: int, y_min: int, y_max: int):
 
@@ -19,6 +23,7 @@ class PointGenerator:
         self.__y_min = y_min
         self.__y_max = y_max
 
+        # nastavení správného atributu podle uživatelem zvoleného rozdělení bodů
         if distribution_type == DistributionType.UNIFORM:
             self.__distribution = UniformDistribution()
 
@@ -44,4 +49,8 @@ class PointGenerator:
             self.__distribution = MitchellDistribution()
 
     def generate_points(self) -> list[Point2D]:
+        """
+        :return: body vygenerované podle pravidel rozdělení bodů vybraného uživatelem
+        """
+
         return self.__distribution.generate_points(self.__image, self.__x_min, self.__x_max, self.__y_min, self.__y_max)

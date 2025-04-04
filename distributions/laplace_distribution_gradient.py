@@ -7,6 +7,11 @@ from util.geometry_utils import find_polygon_centroid
 
 
 class LaplaceDistributionGradient(ALaplaceDistribution):
+    """
+    Třída reprezentuje rozdělení bodů dle Laplaceova operátoru.
+    Vzniklé trojúhelníky jsou dále děleny, jestliže rozdíly v barvách jejich vrcholů jsou příliš velké.
+    """
+
     def split_triangle(self, points: list[Point2D], image: Image) -> list[Point2D]:
         if len(points) < 3:
             return []

@@ -7,9 +7,15 @@ POINTS_OUTPUT_EXTENSION = '.txt'
 
 
 def write_points_to_file(points: list[Point2D]) -> str:
-    filename = POINTS_OUTPUT_FOLDER + datetime.datetime.now().strftime("%d-%m-%Y_%H-%M-%S") + POINTS_OUTPUT_EXTENSION
+    """
+    Zapíše seznam 2D bodů do textového souboru.
+    :param points: seznam 2D bodů
+    :return: cesta k textovému souboru
+    """
 
-    with open(filename, 'w') as file:
+    filepath = POINTS_OUTPUT_FOLDER + datetime.datetime.now().strftime("%d-%m-%Y_%H-%M-%S") + POINTS_OUTPUT_EXTENSION
+
+    with open(filepath, 'w') as file:
         file.write('# počet bodů\n')
         file.write(str(len(points)) + '\n')
 
@@ -17,4 +23,4 @@ def write_points_to_file(points: list[Point2D]) -> str:
         for point in points:
             file.write(str(point.get_x()) + ';' + str(point.get_y()) + '\n')
 
-    return filename
+    return filepath

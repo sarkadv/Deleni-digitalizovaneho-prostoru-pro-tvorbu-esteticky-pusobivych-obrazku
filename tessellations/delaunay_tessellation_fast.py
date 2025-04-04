@@ -4,6 +4,10 @@ from util.geometry_utils import *
 
 
 class DelaunayTessellationFast(ADelaunayTessellation):
+    """
+    Třída reprezentuje dělení prostoru Delaunayho triangulací.
+    Základní barva oblastí je určena podle určitého počtu celočíselných bodů uvnitř oblasti.
+    """
 
     def get_base_color(self, image: Image, vertices: list[Point2D]) -> Tuple[float, float, float]:
         # počet nalezených bodů pro daný polygon

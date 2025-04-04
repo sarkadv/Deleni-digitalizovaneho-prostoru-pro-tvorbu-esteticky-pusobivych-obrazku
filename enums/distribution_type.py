@@ -1,8 +1,11 @@
 from enums.extended_enum import *
 
 
-# typy rozdělení bodů
 class DistributionType(ExtendedEnum):
+    """
+    Výčtový typ pro různé druhy rozdělení bodů.
+    """
+
     UNIFORM = 'Rovnoměrné rozdělení'
     LAPLACE_AREA = 'Laplaceův operátor - Obsah trojúhelníku'
     LAPLACE_LENGTH = 'Laplaceův operátor - Délka strany'

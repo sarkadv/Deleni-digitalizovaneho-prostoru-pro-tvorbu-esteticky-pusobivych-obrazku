@@ -10,6 +10,15 @@ from util.convolution import create_convolution_padding, convolute, GAUSSIAN_CON
 
 def draw_polygon(context: cairo.Context, vertices: list[Point2D], color: Tuple[float, float, float],
                  border_color: Tuple[float, float, float], border_width: int = 1) -> None:
+    """
+    Vykreslí na grafický kontext polygon.
+    :param context: grafický kontext
+    :param vertices: vrcholy polygonu
+    :param color: RGB barva výplně se složkami 0-1
+    :param border_color: RGB barva obrysu se složkami 0-1
+    :param border_width: šířka obrysu
+    """
+
     points = [(vertex.get_x(), vertex.get_y()) for vertex in vertices]
 
     # nakreslení výplně
@@ -29,6 +38,14 @@ def draw_polygon(context: cairo.Context, vertices: list[Point2D], color: Tuple[f
 
 def draw_circle(context: cairo.Context, center: Point2D, radius: float,
                 color: Tuple[float, float, float]) -> None:
+    """
+    Vykreslí na grafický kontext kruh.
+    :param context: grafický kontext
+    :param center: střed kruhu
+    :param radius: poloměr kruhu
+    :param color: RGB barva výplně se složkami 0-1
+    """
+
     context.set_source_rgb(*color)
     context.arc(center.get_x(), center.get_y(), radius, 0, 2 * math.pi)
     context.fill()
@@ -36,6 +53,15 @@ def draw_circle(context: cairo.Context, center: Point2D, radius: float,
 
 def draw_oval(context: cairo.Context, center: Point2D, radius_x: float, radius_y: float,
               color: Tuple[float, float, float]) -> None:
+    """
+    Vykreslí na grafický kontext ovál.
+    :param context: grafický kontext
+    :param center: střed oválu
+    :param radius_x: poloměr oválu v ose x
+    :param radius_y: poloměr oválu v ose y
+    :param color: RGB barva výplně se složkami 0-1
+    """
+
     context.save()
 
     context.translate(center.get_x(), center.get_y())
@@ -54,6 +80,16 @@ def draw_oval(context: cairo.Context, center: Point2D, radius_x: float, radius_y
 def draw_polygon_with_gradient(context: cairo.Context, vertices: list[Point2D], start_vertex: Point2D,
                                end_vertex: Point2D, start_color: Tuple[float, float, float],
                                end_color: Tuple[float, float, float]) -> None:
+    """
+    Vykreslí na grafický kontext polygon s výplní lineárního gradientu.
+    :param context: grafický kontext
+    :param vertices: vrcholy polygonu
+    :param start_vertex: počáteční bod lineárního gradientu
+    :param end_vertex: koncový bod lineárního gradientu
+    :param start_color: počáteční barva lineárního gradientu
+    :param end_color: koncová barva lineárního gradientu
+    """
+
     gradient = cairo.LinearGradient(start_vertex.get_x(), start_vertex.get_y(), end_vertex.get_x(), end_vertex.get_y())
 
     gradient.add_color_stop_rgb(0, start_color[0], start_color[1], start_color[2])  # počátek gradientu
@@ -76,6 +112,13 @@ def draw_polygon_with_gradient(context: cairo.Context, vertices: list[Point2D], 
 
 
 def draw_paper_texture(context: cairo.Context, width: int, height: int) -> None:
+    """
+    Vykreslí na celý grafický kontext šum pro efekt papíru.
+    :param context: grafický kontext
+    :param width: šířka kontextu
+    :param height: výška kontextu
+    """
+
     # velikost jedné částice šumu podle rozměrů obrázku
     noise_particle_size = int(math.log(width * height, 100))
 

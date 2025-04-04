@@ -2,6 +2,10 @@ from geometry.a_region import *
 
 
 class VoronoiRegion(ARegion):
+    """
+    Třída reprezentující jednu Voroného oblast (polygon).
+    """
+
     def __init__(self, vertices: list[Point2D], seed: Point2D, base_color: Tuple[float, float, float]):
         super().__init__(vertices, base_color)
         self.__generator = seed

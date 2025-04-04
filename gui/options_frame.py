@@ -10,6 +10,10 @@ from enums.tessellation_type import TessellationType
 
 
 class OptionsFrame(tk.Frame):
+    """
+    Okno GUI pro zobrazení výběru parametrů výsledného obrázku.
+    """
+
     NAME = "options_frame"
     IMG_INPUT_FOLDER = "img_input/"
     MAX_GUI_FILENAME_LENGTH = 20
@@ -32,7 +36,7 @@ class OptionsFrame(tk.Frame):
         self.__points_output_btn = tk.Checkbutton(self, text='Zapsat vygenerované body do souboru',
                                                   variable=self.__points_output_int, onvalue=1, offvalue=0,
                                                   command=lambda:
-                                                  self.__controller.set_points_output(self.__points_output_int))
+                                                  self.__controller.set_points_output(self.__points_output_int.get()))
         self.__points_output_btn.pack(pady=10)
 
         self.__tessellation_string = tk.StringVar(self, value="Vybrat teselaci")
@@ -54,25 +58,34 @@ class OptionsFrame(tk.Frame):
         self.__continue_button.pack_forget()
 
     def pick_file(self) -> None:
+        """
+        Zobrazí dialog pro výběr vstupního obrázku.
+        """
+
         filetypes = (
             ("image files", "*.jpg"),
             ("image files", "*.jpeg"),
         )
 
-        filename = filedialog.askopenfilename(
+        filepath = filedialog.askopenfilename(
             title="Vybrat obrázek",
             initialdir=self.IMG_INPUT_FOLDER,
             filetypes=filetypes)
 
-        if filename != "":  # uživatel nevybral žádný obrázek
-            self.__controller.set_image_file(filename)
+        if filepath != "":  # uživatel nevybral žádný obrázek
+            self.__controller.set_image_file(filepath)
 
-    def configure_file_label(self, filename: str) -> None:
-        if filename == "":
+    def configure_file_label(self, filepath: str) -> None:
+        """
+        Nastaví text s názvem zvoleného obrázku.
+        :param filepath: cesta ke vstupnímu obrázku
+        """
+
+        if filepath == "":
             self.__file_label.configure(text="Vybraný obrázek: X")
             return
 
-        label = os.path.basename(filename)
+        label = os.path.basename(filepath)
 
         if len(label) > self.MAX_GUI_FILENAME_LENGTH:
             label = label[:self.MAX_GUI_FILENAME_LENGTH] + "..."
@@ -80,6 +93,11 @@ class OptionsFrame(tk.Frame):
         self.__file_label.configure(text="Vybraný obrázek: " + label)
 
     def show_distribution_menu(self, tessellation: TessellationType) -> None:
+        """
+        Zobrazí menu pro výběr rozdělení bodů.
+        :param tessellation: uživatelem vybraná teselace
+        """
+
         self.__distribution_string = tk.StringVar(self, value="Vybrat rozdělení bodů")
         self.__distribution_menu.pack_forget()
         self.__continue_button.pack_forget()
@@ -108,6 +126,11 @@ class OptionsFrame(tk.Frame):
             self.__controller.set_distribution(DistributionType.QUADTREE)
 
     def show_effect_menu(self, tessellation: TessellationType) -> None:
+        """
+        Zobrazí menu pro výběr efektu.
+        :param tessellation: uživatelem vybraná teselace
+        """
+
         self.__effect_string = tk.StringVar(self, value="Vybrat efekt")
         self.__effect_menu.pack_forget()
         self.__continue_button.pack_forget()
@@ -144,4 +167,8 @@ class OptionsFrame(tk.Frame):
             self.__effect_menu.pack(pady=10, fill="x", expand=True)
 
     def show_continue_button(self) -> None:
+        """
+        Zobrazí tlačítko pro pokračování do dalšího okna.
+        """
+
         self.__continue_button.pack(pady=10, fill="x", expand=True)

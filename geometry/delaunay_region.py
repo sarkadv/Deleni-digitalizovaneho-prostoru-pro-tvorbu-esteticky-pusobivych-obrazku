@@ -8,6 +8,10 @@ from geometry.point_2d import Point2D
 
 
 class DelaunayRegion(ARegion):
+    """
+    Třída reprezentující jednu oblast Delaunayho teselace (trojúhelník).
+    """
+
     def __init__(self, vertices: list[Point2D], base_color: Tuple[float, float, float]):
         super().__init__(vertices, base_color)
 

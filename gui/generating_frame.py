@@ -7,6 +7,10 @@ from gui.result_window import ResultWindow
 
 
 class GeneratingFrame(tk.Frame):
+    """
+    Okno GUI pro zobrazení průběhu generování obrázku.
+    """
+
     NAME = "generating_frame"
 
     def __init__(self, parent: tk.Frame, controller):
@@ -34,19 +38,40 @@ class GeneratingFrame(tk.Frame):
                                            command=lambda: self.__show_result_window())
         self.__continue_button.pack_forget()
 
-    def set_points_file(self, filename: str) -> None:
-        self.__points_label = tk.Label(self, text="Vygenerované body uloženy do souboru:\n" + filename)
+    def set_points_file(self, filepath: str) -> None:
+        """
+        Nastaví text o zápisu vygenerovaných bodů do souboru.
+        :param filepath: cesta k souboru s body
+        """
+
+        self.__points_label = tk.Label(self, text="Vygenerované body uloženy do souboru:\n" + filepath)
         self.__points_label.pack(pady=10)
 
     def set_points_generated(self) -> None:
+        """
+        Nastaví text o dokončení generování bodů.
+        """
+
         self.__points_label = tk.Label(self, text="Body byly vygenerovány.")
         self.__points_label.pack(pady=10)
 
     def set_image_generated(self) -> None:
+        """
+        Nastaví text o dokončení generování obrázku.
+        """
+
         self.__image_label.pack(pady=10)
 
     def show_continue_button(self) -> None:
+        """
+        Zviditelní tlačítko pro pokračování do dalšího okna.
+        """
+
         self.__continue_button.pack(pady=10)
 
     def __show_result_window(self) -> None:
-        ResultWindow(self, self.__controller)  # zobrazení okna s výsledným obrázkem
+        """
+        Zobrazí okno s výsledným obrázkem.
+        """
+
+        ResultWindow(self, self.__controller)

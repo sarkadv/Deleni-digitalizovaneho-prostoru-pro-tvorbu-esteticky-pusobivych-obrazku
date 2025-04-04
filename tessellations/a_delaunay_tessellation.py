@@ -9,6 +9,10 @@ from util.geometry_utils import *
 
 
 class ADelaunayTessellation(ATessellation):
+    """
+    Abstraktní třída reprezentující dělení prostoru Delaunayho triangulací.
+    """
+
     def generate_regions(self, points: list[Point2D], image: Image) -> list[ARegion]:
         # přidání okrajových bodů, aby byly vytvořeny trojúhelníky po celém obrazu
         bounds = [Point2D(0, 0), Point2D(image.width - 1, image.height - 1),
@@ -39,4 +43,10 @@ class ADelaunayTessellation(ATessellation):
 
     @abstractmethod
     def get_base_color(self, image: Image, vertices: list[Point2D]) -> Tuple[float, float, float]:
+        """
+        Metoda určí základní barvu Delaunayho oblasti podle pravidel implementující třídy.
+        :param image: vstupní obrázek
+        :param vertices: vrcholy Delaunayho oblasti (trojúhelníku)
+        :return: základní barva oblasti
+        """
         pass

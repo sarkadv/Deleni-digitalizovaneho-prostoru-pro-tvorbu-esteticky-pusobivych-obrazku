@@ -5,6 +5,9 @@ from PIL import Image, ImageTk
 
 
 class ResultWindow(tk.Toplevel):
+    """
+    Okno pro zobrazení výsledného obrázku.
+    """
 
     DEFAULT_WINDOW_SIZE = "725x725"
     MIN_WINDOW_WIDTH = 725
@@ -37,7 +40,13 @@ class ResultWindow(tk.Toplevel):
         self.__back_button.pack(pady=10, padx=(10, 250), side=tk.RIGHT)
 
     def __create_canvas(self) -> None:
+        """
+        Inicializuje a vyplní komponentu Canvas výsledným obrázkem.
+        """
+
         self.__canvas = tk.Canvas(self, width=self.CANVAS_WIDTH, height=self.CANVAS_HEIGHT)
+
+        # škálování a převod obrázku do vhodného formátu pro Canvas
         self.__canvas_image = self.__create_canvas_image(self.__generated_image)
 
         canvas_image_width = self.__canvas_image.width()
@@ -51,14 +60,23 @@ class ResultWindow(tk.Toplevel):
         self.__canvas.pack(pady=10)
 
     def __create_canvas_image(self, image: Image) -> tk.PhotoImage:
+        """
+        Provede škálování a převod obrázku na formát vhodný pro komponentu Canvas.
+        :param image: vygenerovaný obrázek
+        :return: obrázek ve formátu pro komponentu Canvas
+        """
+
         canvas_image_width = self.CANVAS_WIDTH - 20
         canvas_image_height = self.CANVAS_HEIGHT - 20
 
         if image.width <= canvas_image_width and image.height <= canvas_image_height:
+            # obrázek se vejde na plátno
+
             return ImageTk.PhotoImage(image)
 
-        # obrázek větší než plátno
         else:
+            # obrázek větší než plátno -> škálování
+
             if image.width >= image.height:
                 height_to_width_ratio = image.height / image.width
 
@@ -76,6 +94,10 @@ class ResultWindow(tk.Toplevel):
         return ImageTk.PhotoImage(image_resized)
 
     def __save_file(self) -> None:
+        """
+        Zobrazí dialog pro uložení výsledného obrázku do souboru.
+        """
+
         filetypes = (
             ("image files", "*.png"),
         )
@@ -92,11 +114,14 @@ class ResultWindow(tk.Toplevel):
 
                 messagebox.showinfo("Success", "Vygenerovaný obrázek uložen do souboru:\n" + filename)
 
-            except IOError as e:
+            except IOError as _:
                 messagebox.showerror("Error", "Nepodařilo se uložit obrázek.")
 
     def __close_window(self) -> None:
-        # při zavření okna se resetuje celá aplikace
+        """
+        Provede reset GUI pro generování nového obrázku při zavření okna s aktuálním výsledným obrázkem.
+        """
+
         self.__controller.reset()
 
 

@@ -9,14 +9,30 @@ from util.geometry_utils import is_point_in_image, find_rectangle_points
 
 
 def color_int_to_float(color_int: Tuple) -> Tuple:
+    """
+    :param color_int: RGB barva se složkami 0-255
+    :return: RGB barva se složkami 0-1
+    """
+
     return tuple(channel / 255 for channel in color_int)
 
 
 def find_complementary_color(color: Tuple[float, float, float]) -> Tuple[float, float, float]:
+    """
+    :param color: RGB barva se složkami 0-1
+    :return: komplementární barva
+    """
+
     return 1 - color[0], 1 - color[1], 1 - color[2]
 
 
 def get_point_color(image: Image, point: Point2D) -> Tuple[float, float, float]:
+    """
+    :param image: obrázek
+    :param point: 2D bod
+    :return: RGB barva daného bodu v obrázku se složkami 0-1 / (0, 0, 0) pokud bod není v obrázku
+    """
+
     if is_point_in_image(image, point):
         r, g, b = image.getpixel((point.get_x(), point.get_y()))
         return color_int_to_float((r, g, b))
@@ -25,6 +41,11 @@ def get_point_color(image: Image, point: Point2D) -> Tuple[float, float, float]:
 
 
 def find_image_mode_color(image: Image) -> Tuple[float, float, float]:
+    """
+    :param image: obrázek
+    :return: nejčastější RGB barva v obrázku se složkami 0-1
+    """
+
     pixels = list(image.getdata())
 
     color_counts = Counter(pixels)
@@ -34,6 +55,12 @@ def find_image_mode_color(image: Image) -> Tuple[float, float, float]:
 
 
 def find_points_average_color(image: Image, points: list[Point2D]) -> Tuple[float, float, float]:
+    """
+    :param image: obrázek
+    :param points: seznam 2D bodů
+    :return: aritmetický průměr barev bodů (RGB barva se složkami 0-1)
+    """
+
     if len(points) < 1:
         return 0, 0, 0
 
@@ -59,6 +86,12 @@ def find_points_average_color(image: Image, points: list[Point2D]) -> Tuple[floa
 
 def find_points_most_common_colors(image: Image, points: list[Point2D], most_common_count: int = 1) \
         -> list[Tuple[float, float, float]]:
+    """
+    :param image: obrázek
+    :param points: seznam 2D bodů
+    :param most_common_count: počet barev, který má být vrácen
+    :return: daný počet nejčastějších barev bodů (RGB barvy se složkami 0-1), seřazeny dle četnosti
+    """
 
     if len(points) < 1:
         return [(0, 0, 0)]
@@ -85,7 +118,13 @@ def find_points_most_common_colors(image: Image, points: list[Point2D], most_com
 
 
 def get_rectangle_average_color(vertices: list[Point2D], image: Image) -> Tuple[float, float, float]:
-    x_points, y_points = find_rectangle_points(vertices, False)
+    """
+    :param vertices: vrcholy obdélníku
+    :param image: obrázek
+    :return: aritmetický průměr barev celočíselných bodů v obdélníku (RGB barva se složkami 0-1)
+    """
+
+    x_points, y_points = find_rectangle_points(vertices)
 
     # obdélník je moc malý
     if len(x_points) == 0 or len(y_points) == 0:
@@ -114,7 +153,14 @@ def get_rectangle_average_color(vertices: list[Point2D], image: Image) -> Tuple[
 
 def get_rectangle_color_standard_deviation(vertices: list[Point2D], image: Image,
                                            average_color: Tuple[float, float, float]) -> float:
-    x_points, y_points = find_rectangle_points(vertices, False)
+    """
+    :param vertices: vrcholy obdélníku
+    :param image: obrázek
+    :param average_color: aritmetický průměr barev celočíselných bodů v obdélníku (RGB barva se složkami 0-1)
+    :return: směrodatná odchylka barev celočíselných bodů v obdélníku
+    """
+
+    x_points, y_points = find_rectangle_points(vertices)
 
     # obdélník je moc malý
     if len(x_points) * len(y_points) <= 1:
@@ -141,6 +187,12 @@ def get_rectangle_color_standard_deviation(vertices: list[Point2D], image: Image
 
 def get_colors_difference(color1: Tuple[float, float, float],
                           color2: Tuple[float, float, float]) -> float:
+    """
+    :param color1: RGB barva se složkami 0-1
+    :param color2: RGB barva se složkami 0-1
+    :return: rozdíl mezi barvami (suma přes všechny složky)
+    """
+
     difference = 0
     length = min(len(color1), len(color2))
 
@@ -152,6 +204,13 @@ def get_colors_difference(color1: Tuple[float, float, float],
 
 def get_colors_ratio(image: Image, points: list[Point2D], color1: Tuple[float, float, float],
                      color2: Tuple[float, float, float]) -> float:
+    """
+    :param image: obrázek
+    :param points: seznam 2D bodů
+    :param color1: RGB barva se složkami 0-1
+    :param color2: RGB barva se složkami 0-1
+    :return: poměr bodů bližších druhé barvě než k té první
+    """
 
     color1_count = 1
     color2_count = 1
@@ -162,11 +221,11 @@ def get_colors_ratio(image: Image, points: list[Point2D], color1: Tuple[float, f
         color1_difference = get_colors_difference(color1, color)
         color2_difference = get_colors_difference(color2, color)
 
-        # zvýšení výskytu barvy, ke které je zkoumaný pixel blíže
+        # zvýšení výskytu barvy, ke které je zkoumaný bod blíže
         if color1_difference < color2_difference:
             color1_count += 1
         else:
             color2_count += 1
 
-    # vrácení poměru pixelů bližších k druhé barvě než k té první
+    # vrácení poměru bodů bližších k druhé barvě než k té první
     return color2_count / color1_count

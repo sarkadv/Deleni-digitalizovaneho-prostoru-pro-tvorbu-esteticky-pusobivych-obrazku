@@ -6,10 +6,15 @@ from tessellations.voronoi_tessellation import *
 
 
 class TesellationGenerator:
+    """
+    Třída zodpovědná za dělení prostoru podle vybrané teselace.
+    """
+
     def __init__(self, points: list[Point2D], image: Image, tessellation_type: TessellationType):
         self.__points = points
         self.__image = image
 
+        # nastavení správného atributu podle uživatelem zvoleného dělení prostoru
         if tessellation_type == TessellationType.VORONOI:
             self.__tesellation = VoronoiTessellation()
         elif tessellation_type == TessellationType.DELAUNAY_FAST:
@@ -20,4 +25,8 @@ class TesellationGenerator:
             self.__tesellation = QuadtreeTessellation()
 
     def generate_regions(self) -> list[ARegion]:
+        """
+        :return: oblasti rozděleného prostoru podle teselace vybrané uživatelem
+        """
+
         return self.__tesellation.generate_regions(self.__points, self.__image)

@@ -6,9 +6,13 @@ from util.geometry_utils import *
 
 
 class QuadtreeTessellation(ATessellation):
+    """
+    Třída reprezentující dělení prostoru kvadrantovým stromem.
+    """
+
     MAX_STANDARD_DEVIATION = 0.12  # maximální směrodatná odchylka barev regionu
-    MIN_AREA = 0  # minimální obsah obdélníku, výpočet při startu dělení
-    MIN_AREA_DIVISOR = 10_000
+    MIN_AREA = 0  # minimální obsah obdélníku, výpočet při startu dělení - vypočteno za běhu
+    MIN_AREA_DIVISOR = 10_000   # vhodně zvolená konstanta pro výpočet parametru MIN_AREA
 
     def generate_regions(self, points: list[Point2D], image: Image) -> list[ARegion]:
         self.MIN_AREA = image.width * image.height / self.MIN_AREA_DIVISOR

@@ -8,6 +8,10 @@ from util.geometry_utils import *
 
 
 class VoronoiTessellation(ATessellation):
+    """
+    Třída reprezentující dělení prostoru Voroného diagramem.
+    """
+
     def generate_regions(self, points: list[Point2D], image: Image) -> list[ARegion]:
         # přidání okrajových bodů, aby nebyly uvnitř obrázku vytvářeny nekonvexní regiony
         image_longer_side = max(image.width, image.height)

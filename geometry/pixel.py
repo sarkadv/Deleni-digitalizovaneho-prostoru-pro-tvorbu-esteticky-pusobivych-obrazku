@@ -1,4 +1,8 @@
 class Pixel:
+    """
+    Pomocná třída pro provedení diskrétní konvoluce s Laplaceovým operátorem.
+    """
+
     def __init__(self, x: int, y: int, convolution_r: int, convolution_g: int, convolution_b: int):
         self.__x = x
         self.__y = y

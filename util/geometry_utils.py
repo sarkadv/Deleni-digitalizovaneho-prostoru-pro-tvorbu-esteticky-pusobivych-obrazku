@@ -11,24 +11,29 @@ from shapely.geometry import Point, MultiPoint
 from geometry.point_2d import Point2D
 
 
-def is_point_in_image(image, point: Point2D):
+def is_point_in_image(image, point: Point2D) -> bool:
+    """
+    :param image: obrázek
+    :param point: 2D bod
+    :return: nachází se souřadnice bodu uvnitř obrázku?
+    """
     return not (point.get_x() < 0 or point.get_x() >= image.width or point.get_y() < 0 or point.get_y() >= image.height)
 
 
-def find_rectangle_points(vertices: list[Point2D], include_border: bool) -> Tuple[list[int], list[int]]:
+def find_rectangle_points(vertices: list[Point2D]) -> Tuple[list[int], list[int]]:
+    """
+    :param vertices: vrcholy obdélníku
+    :return: celočíselné body v obdélníku
+    """
+
     min_x = min([point.get_x() for point in vertices])
     max_x = max([point.get_x() for point in vertices])
 
     min_y = min([point.get_y() for point in vertices])
     max_y = max([point.get_y() for point in vertices])
 
-    if include_border:
-        addition = 1
-    else:
-        addition = 0
-
-    x_points = list(range(min_x, max_x + addition))
-    y_points = list(range(min_y, max_y + addition))
+    x_points = list(range(min_x, max_x + 1))
+    y_points = list(range(min_y, max_y + 1))
 
     return x_points, y_points
 
@@ -37,7 +42,7 @@ def find_points_in_polygon(vertices: list[Point2D], point_count_limit: int, imag
     """
     :param vertices: vrcholy polygonu
     :param point_count_limit: limit vygenerovaných bodů, po jehož dosažení je hledání ukončeno (-1 žádný limit)
-    :param image: celý obraz
+    :param image: obrázek
     :return: body nacházející se v polygonu
     """
 
@@ -51,7 +56,7 @@ def find_points_in_polygon(vertices: list[Point2D], point_count_limit: int, imag
     if no_vertices_in_image:
         return []
 
-    x_points, y_points = find_rectangle_points(vertices, True)
+    x_points, y_points = find_rectangle_points(vertices)
 
     x_indices = list(range(len(x_points)))
     y_indices = list(range(len(y_points)))
@@ -81,15 +86,23 @@ def find_points_in_polygon(vertices: list[Point2D], point_count_limit: int, imag
 
 def crop_polygon_by_bounds(bounds: list[Tuple[float, float]],
                            vertices: list[Tuple[float, float]]) -> list[Tuple[float, float]]:
+    """
+    :param bounds: ořezové hranice dané 2D vrcholy polygonu
+    :param vertices: ořezávaný polygon daný 2D vrcholy
+    :return: oříznutý polygon daný 2D vrcholy
+    """
+
     intersecting_polygon = Polygon(vertices)
     bounding_polygon = Polygon(bounds)
 
     if not intersecting_polygon.is_valid or not bounding_polygon.is_valid:
+        # jeden z polygonů není validní
         return vertices
 
     cropped_polygon = intersecting_polygon.intersection(bounding_polygon)
 
     if not isinstance(cropped_polygon, Polygon):
+        # nepodařilo se oříznout polygon
         return vertices
 
     x_coords, y_coords = cropped_polygon.exterior.xy
@@ -102,10 +115,20 @@ def crop_polygon_by_bounds(bounds: list[Tuple[float, float]],
 
 
 def get_polygon_from_points(points: list[Point2D]) -> Polygon:
+    """
+    :param points: seznam 2D bodů
+    :return: instance třídy Polygon vytvořená z daných bodů
+    """
+
     return Polygon([(point.get_x(), point.get_y()) for point in points])
 
 
 def random_point_in_polygon(polygon: Polygon) -> Point2D:
+    """
+    :param polygon: instance třídy Polygon
+    :return: náhodný 2D bod uvnitř polygonu
+    """
+
     min_x, min_y, max_x, max_y = polygon.bounds
     min_x = round(min_x)
     max_x = round(max_x)
@@ -120,6 +143,11 @@ def random_point_in_polygon(polygon: Polygon) -> Point2D:
 
 
 def find_polygon_centroid(vertices: list[Point2D]) -> Point2D:
+    """
+    :param vertices: vrcholy polygonu
+    :return: centroid (geometrický střed) polygonu jako 2D bod
+    """
+
     if len(vertices) == 0:
         return Point2D(-1, -1)
 
@@ -137,6 +165,11 @@ def find_polygon_centroid(vertices: list[Point2D]) -> Point2D:
 
 
 def find_polygon_longest_side(vertices: list[Point2D]) -> Tuple[Point2D, Point2D]:
+    """
+    :param vertices: vrcholy polygonu
+    :return: dva vrcholy tvořící nejdelší stranu polygonu
+    """
+
     max_distance = -sys.maxsize
     max_distance_vertices = (None, None)
 
@@ -154,6 +187,15 @@ def find_polygon_longest_side(vertices: list[Point2D]) -> Tuple[Point2D, Point2D
 
 
 def split_polygon(vertices: list[Point2D]) -> list[list[Point2D]]:
+    """
+    Rozdělí polygon na dva polygony. Dělicí úsečka vede od středu nejdelší strany polygonu do středu
+    jiné strany, který je nejdále od prvního středu.
+    :param vertices: vrcholy polygonu
+    :return: seznam obsahující dva seznamy vrcholů polygonů
+            / seznam obsahující jeden seznam vrcholů polygonů
+            (původní vrcholy, nepodařilo se polygon rozdělit)
+    """
+
     # nalezení středu nejdelší strany polygonu
     longest_side = find_polygon_longest_side(vertices)
     center1 = longest_side[0].line_center(longest_side[1])
@@ -174,9 +216,9 @@ def split_polygon(vertices: list[Point2D]) -> list[list[Point2D]]:
             center2 = center
 
     polygon = Polygon([[vertex.get_x(), vertex.get_y()] for vertex in vertices])
-    line = LineString([[center1.get_x(), center1.get_y()], [center2.get_x(), center2.get_y()]])  # dělicí přímka
+    line = LineString([[center1.get_x(), center1.get_y()], [center2.get_x(), center2.get_y()]])  # dělicí úsečka
 
-    # rozdělení polygonu dělicí přímkou
+    # rozdělení polygonu dělicí úsečkou
     split_polygons = []
 
     try:
@@ -189,7 +231,7 @@ def split_polygon(vertices: list[Point2D]) -> list[list[Point2D]]:
         for geom in parts.geoms:
             split_polygons.append(list(geom.exterior.coords)[:-1])
     else:
-        # přímka nerozdělila polygon (např. polygon příliš malý)
+        # úsečka nerozdělila polygon (např. polygon příliš malý)
         return [vertices]  # vrácení původního polygonu
 
     result = []
@@ -201,6 +243,12 @@ def split_polygon(vertices: list[Point2D]) -> list[list[Point2D]]:
 
 
 def remove_similar_points(points: list[Point2D], min_distance_between_points: int) -> list[Point2D]:
+    """
+    :param points: vstupní body
+    :param min_distance_between_points: minimální vzdálenost mezi body
+    :return: seznam vstupních bodů, ze kterého byly odebrány příliš blízké body
+    """
+
     # vytvoření datové struktury KD-tree z bodů
     point_tuples = [(point.get_x(), point.get_y()) for point in points]
     tree = KDTree(point_tuples)

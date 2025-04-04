@@ -7,6 +7,11 @@ from geometry.point_2d import *
 
 
 class MitchellDistribution(ADistribution):
+    """
+    Třída představující rozdělení bodů dle Mitchellova algoritmu.
+    """
+
+    # vhodně zvolené konstanty pro výpočet parametrů
     POINT_COUNT_MULTIPLIER = 100_000
     CANDIDATE_COUNT_MULTIPLIER = 2
 
@@ -37,6 +42,14 @@ class MitchellDistribution(ADistribution):
 
     def __generate_candidates(self, point_count: int, uniform_discrete_variable_x: randint,
                               uniform_discrete_variable_y: randint) -> list[Point2D]:
+        """
+        Vygeneruje a vrátí daný počet kandidátských bodů.
+        :param point_count: počet generovaných bodů
+        :param uniform_discrete_variable_x: náhodná proměnná diskrétního rovnoměrného rozdělení pro osu x
+        :param uniform_discrete_variable_y: náhodná proměnná diskrétního rovnoměrného rozdělení pro osu y
+        :return: kandidátské body
+        """
+
         points = []
 
         coordinates_x = uniform_discrete_variable_x.rvs(size=point_count)
@@ -48,6 +61,13 @@ class MitchellDistribution(ADistribution):
         return list(set(points))  # odstranění duplicitních bodů
 
     def __find_max_distance_point(self, current_points: list[Point2D], candidates: list[Point2D]) -> Point2D | None:
+        """
+        Najde a vrátí nejvzdálenější kandidátský bod od již přijatých bodů.
+        :param current_points: již přijaté body
+        :param candidates: kandidátské body
+        :return: nejvzdálenější kandidátský bod / žádný bod, jestliže ten vybraný se shoduje s již přijatým bodem
+        """
+
         min_distances = []
 
         # převedení na np.array

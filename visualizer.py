@@ -8,7 +8,11 @@ from util.geometry_utils import *
 
 
 class Visualizer:
-    BORDER_DIVISOR = 500
+    """
+    Třída zodpovědná za vykreslení oblastí teselace na grafický kontext.
+    """
+
+    BORDER_DIVISOR = 500    # vhodně zvolená konstanta pro získání šířky obrysu
 
     def __init__(self, image: Image, regions: list[ARegion], effect: EffectType):
         self.__image = image
@@ -16,6 +20,12 @@ class Visualizer:
         self.__effect = effect
 
     def create_image(self) -> Image:
+        """
+        Podle atributů vykreslí na grafický kontext oblasti teselace s vybraným efektem.
+        Grafický kontext je poté převeden na instanci Image z knihovny Pillow a obrázek je vrácen.
+        :return: instance třídy Image
+        """
+
         surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.__image.width, self.__image.height)
         context = cairo.Context(surface)
 
@@ -27,17 +37,11 @@ class Visualizer:
             border_width = self.__image.width / self.BORDER_DIVISOR
             border_color_rgb = find_complementary_color(find_image_mode_color(self.__image))
 
-            # surface = self.cairo_surface_from_image()
-            # context = cairo.Context(surface)
-
             for region in self.__regions:
                 region.draw_grid(context, border_width, border_color_rgb, False)
 
         elif self.__effect == EffectType.GRID_COLORFUL:
             border_width = round(self.__image.width / self.BORDER_DIVISOR)
-
-            # surface = self.cairo_surface_from_image()
-            # context = cairo.Context(surface)
 
             for region in self.__regions:
                 # barva je vybrána samostatně pro každý region
@@ -65,11 +69,3 @@ class Visualizer:
         data = surface.get_data()
         image = Image.frombuffer("RGBA", (self.__image.width, self.__image.height), data, "raw", "BGRA", 0, 1)
         return image
-
-    def cairo_surface_from_image(self) -> cairo.Surface:
-        # podle https://pycairo.readthedocs.io/en/latest/tutorial/pillow.html
-
-        self.__image.putalpha(256)
-        arr = bytearray(self.__image.tobytes('raw', 'BGRa'))
-
-        return cairo.ImageSurface.create_for_data(arr, cairo.FORMAT_RGB24, self.__image.width, self.__image.height)
