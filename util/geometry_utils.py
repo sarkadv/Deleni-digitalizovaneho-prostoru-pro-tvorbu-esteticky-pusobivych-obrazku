@@ -85,7 +85,6 @@ def find_points_in_polygon(vertices: list[Point2D], point_count_limit: int, imag
                 return points
 
     points.extend(vertices)
-
     return list(set(points))
 
 
