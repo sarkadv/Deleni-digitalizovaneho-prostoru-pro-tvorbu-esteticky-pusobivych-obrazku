@@ -32,8 +32,8 @@ def find_rectangle_points(vertices: list[Point2D]) -> Tuple[list[int], list[int]
     min_y = min([point.get_y() for point in vertices])
     max_y = max([point.get_y() for point in vertices])
 
-    x_points = list(range(min_x, max_x + 1))
-    y_points = list(range(min_y, max_y + 1))
+    x_points = list(range(min_x, max_x))
+    y_points = list(range(min_y, max_y))
 
     return x_points, y_points
 
