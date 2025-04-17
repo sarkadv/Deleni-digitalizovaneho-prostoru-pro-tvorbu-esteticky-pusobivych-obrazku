@@ -68,6 +68,7 @@ def find_points_in_polygon(vertices: list[Point2D], point_count_limit: int, imag
     convex_hull = multipoint.convex_hull
 
     points = []
+    points.extend(vertices)
 
     for i in range(len(x_indices)):
         for j in range(len(y_indices)):
@@ -81,10 +82,9 @@ def find_points_in_polygon(vertices: list[Point2D], point_count_limit: int, imag
             if convex_hull.contains(Point(point.get_x(), point.get_y())):
                 points.append(point)
 
-            if point_count_limit != -1 and len(points) == point_count_limit:
+            if point_count_limit != -1 and len(points) >= point_count_limit:
                 return points
 
-    points.extend(vertices)
     return list(set(points))
 
 
