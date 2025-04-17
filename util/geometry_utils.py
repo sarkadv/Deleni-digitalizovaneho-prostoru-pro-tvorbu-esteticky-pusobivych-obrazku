@@ -79,13 +79,17 @@ def find_points_in_polygon(vertices: list[Point2D], point_count_limit: int, imag
             if not is_point_in_image(image, point):
                 continue
 
+            if point in vertices:
+                # bod už byl přidán před cyklem
+                continue
+
             if convex_hull.contains(Point(point.get_x(), point.get_y())):
                 points.append(point)
 
             if point_count_limit != -1 and len(points) >= point_count_limit:
                 return points
 
-    return list(set(points))
+    return points
 
 
 def crop_polygon_by_bounds(bounds: list[Tuple[float, float]],
