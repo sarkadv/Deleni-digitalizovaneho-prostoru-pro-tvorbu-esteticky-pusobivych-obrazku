@@ -206,6 +206,10 @@ def split_polygon(vertices: list[Point2D]) -> list[list[Point2D]]:
 
     # nalezení středu nejdelší strany polygonu
     longest_side = find_polygon_longest_side(vertices)
+
+    if longest_side[0] is None or longest_side[1] is None:
+        return [vertices]  # vrácení původního polygonu
+
     center1 = longest_side[0].line_center(longest_side[1])
 
     # nalezení středu strany, který je nejdále od prvního středu

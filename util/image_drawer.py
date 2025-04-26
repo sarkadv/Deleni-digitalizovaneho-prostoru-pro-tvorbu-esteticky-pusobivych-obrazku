@@ -19,6 +19,10 @@ def draw_polygon(context: cairo.Context, vertices: list[Point2D], color: Tuple[f
     :param border_width: šířka obrysu
     """
 
+    if len(vertices) < 3:
+        # není polygon
+        return
+
     points = [(vertex.get_x(), vertex.get_y()) for vertex in vertices]
 
     # nakreslení výplně
@@ -89,6 +93,10 @@ def draw_polygon_with_gradient(context: cairo.Context, vertices: list[Point2D], 
     :param start_color: počáteční barva lineárního gradientu
     :param end_color: koncová barva lineárního gradientu
     """
+
+    if len(vertices) < 3:
+        # není polygon
+        return
 
     gradient = cairo.LinearGradient(start_vertex.get_x(), start_vertex.get_y(), end_vertex.get_x(), end_vertex.get_y())
 
