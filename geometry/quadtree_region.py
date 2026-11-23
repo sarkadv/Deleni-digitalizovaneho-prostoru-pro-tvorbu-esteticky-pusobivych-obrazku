@@ -69,7 +69,8 @@ class QuadtreeRegion(ARegion):
 
     def draw_rectangle_with_oval(self, context: cairo.Context, image: Image):
         points_x, points_y = find_rectangle_points(self.get_vertices())
-        points_2D = [Point2D(x, y) for x, y in zip(points_x, points_y)]
+        # všechny celočíselné body obdélníku (kartézský součin souřadnic x a y)
+        points_2D = [Point2D(x, y) for x in points_x for y in points_y]
 
         most_common_colors = find_points_most_common_colors(image, points_2D, 2)
         rectangle_color = most_common_colors[0]
