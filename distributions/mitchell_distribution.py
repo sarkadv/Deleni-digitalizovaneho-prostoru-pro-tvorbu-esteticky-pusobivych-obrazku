@@ -22,6 +22,10 @@ class MitchellDistribution(ADistribution):
 
         point_count = round(math.log((image.width * image.height * self.POINT_COUNT_MULTIPLIER) ** 2, 1.05)) * 2
 
+        # různých bodů nemůže být víc než možných pozic (horní meze náhodných proměnných nejsou zahrnuty),
+        # jinak by u malých obrázků generování nikdy neskončilo
+        point_count = min(point_count, (x_max - x_min) * (y_max - y_min))
+
         # vygenerujeme náhodně první bod
         points = self.__generate_candidates(1, uniform_discrete_variable_x, uniform_discrete_variable_y)
 
