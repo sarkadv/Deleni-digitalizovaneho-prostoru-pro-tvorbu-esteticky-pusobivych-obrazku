@@ -99,20 +99,21 @@ class ErrorDistribution(ADistribution):
                                                                                         intersects_bounds)
 
                 if region_standard_deviation > self.MAX_STANDARD_DEVIATION:
-                    change = True
-
                     if intersects_bounds:
                         # oříznutí polygonu, aby nebyl nový bod vygenerován mimo obrázek
                         cropped_polygon = Polygon(crop_polygon_by_bounds(bounds, vertices))
                     else:
                         cropped_polygon = Polygon(vertices)
 
-                    # nový bod v oblasti
-                    new_point = random_point_in_polygon(cropped_polygon)
+                    # nový bod v oblasti (nesmí být stejný jako generátor)
+                    new_point = random_point_in_polygon(cropped_polygon, generator)
 
-                    while new_point.__eq__(generator):
-                        new_point = random_point_in_polygon(cropped_polygon)
+                    if new_point is None:
+                        # v oblasti není žádný další celočíselný bod, oblast už nelze rozdělit
+                        final_generators.add(generator)
+                        continue
 
+                    change = True
                     coordinates.append([new_point.get_x(), new_point.get_y()])
 
                 else:

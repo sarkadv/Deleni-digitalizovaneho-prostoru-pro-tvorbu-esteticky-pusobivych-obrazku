@@ -5,7 +5,7 @@ from typing import Tuple
 from PIL import Image
 from scipy.spatial import KDTree
 
-from shapely import Polygon, LineString
+from shapely import Polygon, LineString, make_valid
 from shapely.geometry import Point, MultiPoint
 
 from geometry.point_2d import Point2D
@@ -103,15 +103,26 @@ def crop_polygon_by_bounds(bounds: list[Tuple[float, float]],
     intersecting_polygon = Polygon(vertices)
     bounding_polygon = Polygon(bounds)
 
-    if not intersecting_polygon.is_valid or not bounding_polygon.is_valid:
-        # jeden z polygonů není validní
+    if not bounding_polygon.is_valid:
+        # hranice nejsou validní polygon
         return vertices
 
-    cropped_polygon = intersecting_polygon.intersection(bounding_polygon)
+    if not intersecting_polygon.is_valid:
+        # zaokrouhlením vrcholů může vzniknout polygon, který protíná sám sebe -> oprava polygonu
+        intersecting_polygon = make_valid(intersecting_polygon)
 
-    if not isinstance(cropped_polygon, Polygon):
-        # nepodařilo se oříznout polygon
-        return vertices
+    # průnik může kromě plochy obsahovat i úsečky a body (dotyk na hranici) -> ponechány jen plošné části
+    parts = []
+
+    for part in _polygon_parts(intersecting_polygon):
+        parts.extend(_polygon_parts(part.intersection(bounding_polygon)))
+
+    if len(parts) == 0:
+        # polygon leží mimo hranice nebo se jich jen dotýká
+        return []
+
+    # oříznutý polygon je největší plošná část průniku
+    cropped_polygon = max(parts, key=lambda polygon: polygon.area)
 
     x_coords, y_coords = cropped_polygon.exterior.xy
     new_vertices = []
@@ -120,6 +131,28 @@ def crop_polygon_by_bounds(bounds: list[Tuple[float, float]],
         new_vertices.append((x_coords[i], y_coords[i]))
 
     return new_vertices
+
+
+def _polygon_parts(geometry) -> list[Polygon]:
+    """
+    :param geometry: geometrie knihovny Shapely (např. Polygon, MultiPolygon, GeometryCollection)
+    :return: polygony s nenulovým obsahem, ze kterých se geometrie skládá
+    """
+
+    if isinstance(geometry, Polygon):
+        return [geometry] if geometry.area > 0 else []
+
+    if hasattr(geometry, "geoms"):
+        # složená geometrie
+        parts = []
+
+        for part in geometry.geoms:
+            parts.extend(_polygon_parts(part))
+
+        return parts
+
+    # úsečka nebo bod
+    return []
 
 
 def get_polygon_from_points(points: list[Point2D]) -> Polygon:
@@ -131,11 +164,19 @@ def get_polygon_from_points(points: list[Point2D]) -> Polygon:
     return Polygon([(point.get_x(), point.get_y()) for point in points])
 
 
-def random_point_in_polygon(polygon: Polygon) -> Point2D:
+RANDOM_POINT_ATTEMPTS = 1000   # počet náhodných pokusů, než se projdou všechny celočíselné body polygonu
+
+
+def random_point_in_polygon(polygon: Polygon, excluded_point: Point2D | None = None) -> Point2D | None:
     """
     :param polygon: instance třídy Polygon
-    :return: náhodný 2D bod uvnitř polygonu
+    :param excluded_point: bod, který nesmí být vrácen (žádný, pokud None)
+    :return: náhodný celočíselný 2D bod uvnitř polygonu různý od excluded_point
+            / None, pokud takový bod neexistuje
     """
+
+    if polygon.is_empty:
+        return None
 
     min_x, min_y, max_x, max_y = polygon.bounds
     min_x = round(min_x)
@@ -143,11 +184,24 @@ def random_point_in_polygon(polygon: Polygon) -> Point2D:
     min_y = round(min_y)
     max_y = round(max_y)
 
-    while True:
+    for _ in range(RANDOM_POINT_ATTEMPTS):
         random_point = Point(random.randint(min_x, max_x), random.randint(min_y, max_y))
 
         if polygon.contains(random_point):
-            return Point2D(int(random_point.x), int(random_point.y))
+            point = Point2D(int(random_point.x), int(random_point.y))
+
+            if point != excluded_point:
+                return point
+
+    # náhodné hledání neuspělo (např. velmi úzký polygon) -> projdou se všechny celočíselné body polygonu
+    points = [Point2D(x, y) for x in range(min_x, max_x + 1) for y in range(min_y, max_y + 1)
+              if Point2D(x, y) != excluded_point and polygon.contains(Point(x, y))]
+
+    if len(points) == 0:
+        # uvnitř polygonu není žádný vhodný celočíselný bod
+        return None
+
+    return random.choice(points)
 
 
 def find_polygon_centroid(vertices: list[Point2D]) -> Point2D:
