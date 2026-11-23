@@ -66,6 +66,10 @@ def draw_oval(context: cairo.Context, center: Point2D, radius_x: float, radius_y
     :param color: RGB barva výplně se složkami 0-1
     """
 
+    if radius_x == 0 or radius_y == 0:
+        # ovál s nulovým obsahem (např. oblast s nulovou šířkou nebo výškou) - není co vykreslit
+        return
+
     context.save()
 
     context.translate(center.get_x(), center.get_y())
