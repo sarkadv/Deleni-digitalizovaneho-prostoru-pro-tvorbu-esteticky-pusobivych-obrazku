@@ -131,11 +131,15 @@ def draw_paper_texture(context: cairo.Context, width: int, height: int) -> None:
     :param height: výška kontextu
     """
 
-    # velikost jedné částice šumu podle rozměrů obrázku
-    noise_particle_size = int(math.log(width * height, 100))
+    # velikost jedné částice šumu podle rozměrů obrázku (alespoň 1 pixel, i pro obrázky menší než 100 pixelů)
+    noise_particle_size = max(1, int(math.log(width * height, 100)))
 
     particles_x = int(width / noise_particle_size)   # počet částic na šířku
     particles_y = int(height / noise_particle_size)  # počet částic na výšku
+
+    if particles_x == 0 or particles_y == 0:
+        # obrázek je užší než jedna částice šumu, šum se nevykreslí
+        return
 
     # náhodná intenzita částic po celém obrázku
     noise_intensity = [[random.uniform(0.05, 0.1) for _ in range(particles_x)] for _ in range(particles_y)]

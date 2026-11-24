@@ -91,7 +91,7 @@ def create_convolution_padding(original_matrix: list[list[float]]) -> list[list[
             if j == 0:  # pixel úplně vlevo
                 padded_matrix[i + 1][j] = original_matrix[i][j]
 
-            elif j == width - 1:  # pixel úplně vpravo
+            if j == width - 1:  # pixel úplně vpravo (u matice s jedním sloupcem zároveň úplně vlevo)
                 padded_matrix[i + 1][j + 2] = original_matrix[i][j]
 
     # 1. řádek vložen znovu úplně nahoru kvůli výpočtu s konvolučním jádrem
