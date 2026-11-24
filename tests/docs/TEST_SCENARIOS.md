@@ -21,7 +21,7 @@ order of the test file. The same ID is written as a comment (`# GE-12`) directly
 | TE | tessellations | `test_tessellations.py` |
 | RE | rendering effects | `test_rendering.py` |
 | PI | whole pipeline | `test_pipeline.py` |
-| UI | GUI (planned) | – |
+| UI | GUI | `test_ui.py` |
 
 **How a result is checked** (shown in brackets after each test name):
 
@@ -45,7 +45,7 @@ order of the test file. The same ID is written as a comment (`# GE-12`) directly
 `backend.seed(n)`, which seeds the program's random generators. Different seeds must give different
 results, the same seed the same result.
 
-In total: 117 test functions and 280 test runs (some functions run once for each listed input).
+In total: 141 test functions and 325 test runs (some functions run once for each listed input).
 
 ---
 
@@ -526,16 +526,117 @@ randomness, so the result is compared with the Python program's result by three 
 
 ---
 
-## GUI – planned (Phase 3) (UI)
+## GUI – `test_ui.py` (UI)
 
-Not written yet. Planned scenarios:
+These tests start the real application window and operate it like a user: they find buttons, labels and
+menus by their visible text, click buttons and choose menu items (see the GUI part of
+[HOW_TESTS_WORK.md](HOW_TESTS_WORK.md)). The file dialogs are replaced: a test decides which path the next
+dialog returns ("" = the user pressed Cancel) and can read what the program asked the dialog for. Message
+boxes are replaced too: they are recorded instead of shown, and the tests compare only their icon, title and
+text (and that they are plain OK boxes), not other options such as `-parent`. Every test starts a fresh
+application in an empty temporary working directory with `logo.png`, `img_input/`, `img_output/` and
+`points_output/`, because the program uses these relative paths. The input image is `tests/data/photo.jpg`
+(120×83) unless a test says otherwise. All tests have the pytest marker `ui`.
 
-* the initial window: image button, points-file checkbox and tessellation menu visible, nothing else;
-* after choosing a tessellation, the distribution and effect menus offer exactly the options for it
-  (quadtree: no distribution menu, two extra effects);
-* error messages when *Generovat* is clicked without an image, tessellation, distribution or effect;
-* an invalid image file is rejected with an error message;
-* generating with and without writing the points file, and the messages shown during generation;
-* the result window shows the image scaled to fit;
-* saving the result as PNG;
-* going back resets the window for a new picture.
+"Shown" means what a user can see: the widget is placed in its window, it is not hidden under another frame
+and its window is open. Widgets that the program only hid (it hides old menus instead of deleting them)
+do not count. Texts are compared exactly – the C program must show the same Czech texts.
+
+### Main window
+
+* **UI-01 `test_initial_window`** (Exact) – After start, only the main window is open (title empty,
+  350×550 pixels) and it shows, top to bottom: the logo, the button `Vybrat obrázek`, the label
+  `Vybraný obrázek: X`, the unchecked check box `Zapsat vygenerované body do souboru` and the menu
+  `Vybrat teselaci`. There is no distribution or effect menu and no `> Generovat` button yet.
+* **UI-02 `test_tessellation_menu_items`** (Exact) – The tessellation menu offers the 4 tessellations in the
+  order of EN-01.
+* **UI-03 `test_menus_offered_for_tessellation`** (Exact; 4 tessellations) – After choosing a tessellation the
+  menu shows its name and below it appear the menu `Vybrat rozdělení bodů`, the menu `Vybrat efekt` and the
+  button `> Generovat`, in this order. The menus offer exactly the combinations the program supports:
+  * Voronoi: distributions uniform, normal (rule of thirds), error, Mitchell; effects none, grid one-colour,
+    grid colourful, gradients, paper;
+  * both Delaunay variants: distributions uniform, normal, the three Laplace ones, Mitchell; the same 5 effects;
+  * quadtree: **no distribution menu** (the quadtree places its own points); effects none, the two grids,
+    gradients, multiple shapes, rectangles with ovals.
+* **UI-04 `test_changing_tessellation_replaces_menus`** (Exact) – Choosing another tessellation (Voronoi →
+  quadtree → Delaunay) replaces the menus: there is always only one distribution and one effect menu, they
+  show the prompts `Vybrat rozdělení bodů` / `Vybrat efekt` again and offer the items for the new tessellation.
+* **UI-05 `test_chosen_items_are_shown`** (Exact) – Each menu shows the item chosen last.
+* **UI-06 `test_points_checkbox_toggles`** (Exact) – The points-file check box is checked by one click and
+  unchecked by the next.
+
+### Choosing the image
+
+* **UI-07 `test_pick_image`** (Exact) – `Vybrat obrázek` opens one file dialog titled `Vybrat obrázek`,
+  starting in `img_input/` and offering `*.jpg` and `*.jpeg` files. After choosing `photo.jpg` the label
+  reads `Vybraný obrázek: photo.jpg`.
+* **UI-08 `test_long_file_name_is_shortened`** (Exact) – A file name longer than 20 characters is shown as its
+  first 20 characters followed by `...`, so the narrow window stays readable.
+* **UI-09 `test_cancel_keeps_previous_image`** (Exact) – Cancelling the dialog keeps the image chosen before;
+  no message appears. The program still has the picture, not only the label: generating then works.
+* **UI-10 `test_invalid_image_file`** (Exact; an empty file, a text file, a file that does not exist) – The error
+  message (title `Chyba`) `Soubor <path> není validní obrázek.` appears, the label returns to
+  `Vybraný obrázek: X`, and the previously chosen picture is forgotten: generating then reports a missing image.
+
+### Missing choices
+
+Clicking `> Generovat` with something missing shows one error message (title `Chyba`) and the window stays as it is.
+
+* **UI-11 `test_missing_image`** (Exact) – No image: `Nebyl vybrán obrázek.`
+* **UI-12 `test_missing_tessellation`** (Exact) – Without a tessellation the `> Generovat` button is not offered
+  at all, so it cannot be clicked. (The program also has the message `Nebyla vybrána teselace.`, but the GUI
+  never lets it appear.)
+* **UI-13 `test_missing_distribution`** (Exact; Voronoi and both Delaunay variants) – Image and effect chosen,
+  no distribution: `Nebylo vybráno rozdělení bodů.`
+* **UI-14 `test_missing_effect`** (Exact; Voronoi, quadtree) – Everything except the effect: `Nebyl vybrán efekt.`
+  For the quadtree this also shows that the missing distribution menu is not reported as an error.
+* **UI-24 `test_changing_tessellation_forgets_choices`** (Exact; quadtree → Voronoi, Voronoi → Delaunay fast,
+  Voronoi → quadtree) – Choosing another tessellation shows the distribution and effect menus with their
+  prompts again, so the earlier choices are forgotten: generating then reports the missing distribution
+  (or, for the quadtree, the missing effect) instead of running a combination the menus never offered, such
+  as a Voronoi diagram from quadtree points or a quadtree with the paper effect.
+
+### Generating
+
+* **UI-15 `test_generate_without_points_file`** (Exact; Voronoi / Delaunay fast / quadtree with different
+  effects) – After `> Generovat` the options are replaced by the progress view: `Generování obrázku...`,
+  `Body byly vygenerovány.`, `Obrázek byl vygenerován!` and the button `> Zobrazit`. No message appears and no
+  points file is written.
+* **UI-16 `test_generate_with_points_file`** (Exact, Property) – With the check box checked, exactly one file
+  `points_output/DD-MM-YYYY_HH-MM-SS.txt` is written and the progress view says
+  `Vygenerované body uloženy do souboru:` followed by that path on the next line. The file has the format of
+  FW-01, its point count matches its lines and all points lie inside the picture (x 1–119, y 1–82).
+
+### Result window
+
+* **UI-17 `test_result_window`** (Exact) – `> Zobrazit` opens the window `Vygenerovaný obrázek` (725×725) with
+  a canvas and the buttons `Uložit obrázek` and `< Zpět`. The 120×83 result fits, so it is shown unscaled,
+  centred on the 650×650 canvas (top-left corner at ((650−120)/2, (650−83)/2) rounded down). The window is
+  modal: the main window cannot be used while it is open.
+* **UI-18 `test_result_image_scaled_to_fit`** (Exact; 9 sizes) – A picture up to 630×630 is shown unscaled; a
+  bigger one is scaled down so that its longer side is 630 and the other side keeps the aspect ratio, rounded
+  down (1000×649 → 630×408, not 409); a square one becomes 630×630. It is always centred as in UI-17. The
+  sizes include the limit (630) and one pixel over it, landscape and portrait. The inputs are simple
+  two-colour JPEGs made by the test, so that big pictures are quick to generate.
+
+### Saving
+
+* **UI-19 `test_save_png`** (Exact, Property) – `Uložit obrázek` opens a save dialog titled `Uložit obrázek`,
+  starting in `img_output/`, with default extension `.png` and only `*.png` files offered. After saving, the
+  message (title `Success`) `Vygenerovaný obrázek uložen do souboru:` + new line + the path appears. The file
+  is a PNG with transparency (RGBA) of the input's size; its fully opaque pixels are exactly the pixels shown
+  in the result window, and it still resembles the input (mean colour difference below 40).
+* **UI-20 `test_save_cancelled`** (Exact) – Cancelling the save dialog writes nothing, shows no message and
+  keeps the result window open.
+* **UI-21 `test_save_fails`** (Exact) – Saving into a folder that does not exist shows the error (title `Error`)
+  `Nepodařilo se uložit obrázek.`; the result window stays open.
+
+### Going back
+
+* **UI-22 `test_back_resets_window`** (Exact; the `< Zpět` button, the window's close button) – The result
+  window closes and the main window is exactly as after start (UI-01), with the check box unchecked. Nothing
+  chosen before is remembered: choosing all menus again and generating reports a missing image.
+* **UI-23 `test_generate_again_after_back`** (Exact) – After going back, a second picture (of another size)
+  can be chosen and generated with other options, and the new result is shown. The points check box was
+  checked for the first picture; after going back no points file is written, so the program itself (not
+  only the check box) forgot that choice.

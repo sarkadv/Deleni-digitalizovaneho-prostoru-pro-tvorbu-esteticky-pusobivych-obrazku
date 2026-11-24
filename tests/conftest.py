@@ -10,6 +10,7 @@ STYLIZE_C_APP and STYLIZE_PYTHON_ROOT.
 
 import json
 import os
+import shutil
 
 import pytest
 
@@ -74,3 +75,28 @@ def golden_png():
     """golden_png("render_x") -> RGBAImage of tests/golden/render_x.png"""
     from helpers import load_png_rgba
     return lambda name: load_png_rgba(os.path.join(GOLDEN_DIR, name + ".png"))
+
+
+@pytest.fixture
+def ui(pytestconfig, tmp_path):
+    """The application's GUI, started in a fresh working directory (tmp_path/app) with the files and
+    folders the program expects there: logo.png, img_input/, img_output/, points_output/.
+    The driver's attribute 'workdir' is that directory."""
+    from ui.drivers import PythonAppDriver, CAppDriver
+
+    workdir = tmp_path / "app"
+    for folder in ("img_input", "img_output", "points_output"):
+        (workdir / folder).mkdir(parents=True)
+    if pytestconfig.getoption("--backend") == "python":
+        python_root = pytestconfig.getoption("--python-root")
+        shutil.copy(os.path.join(python_root, "logo.png"), workdir)
+        driver = PythonAppDriver(python_root, str(workdir))
+    else:
+        c_app = pytestconfig.getoption("--c-app")
+        if not c_app:
+            raise pytest.UsageError("GUI tests of the C program need --c-app=<path to the executable>")
+        shutil.copy(os.path.join(PROJECT_ROOT, "logo.png"), workdir)
+        driver = CAppDriver(c_app, str(workdir))
+    driver.workdir = str(workdir)
+    yield driver
+    driver.close()

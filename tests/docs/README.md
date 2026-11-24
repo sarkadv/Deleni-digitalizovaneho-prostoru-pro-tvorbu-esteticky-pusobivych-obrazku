@@ -17,7 +17,11 @@ Give options with a path as `--option=value`: in the form `--option value` pytes
 test location. The options can also be set as environment variables `STYLIZE_BACKEND`,
 `STYLIZE_PYTHON_ROOT`, `STYLIZE_C_LIB` and `STYLIZE_C_APP`.
 
-Tests never modify the program; they only seed its random generators.
+The GUI tests (`test_ui.py`, marker `ui`) open the application's windows for a moment, so they need a desktop
+session; `pytest -m ui` runs only them (~15 s). For the C program they need `--c-app`.
+
+Tests never modify the program; they only seed its random generators and, in the GUI tests, replace the
+Tk file dialogs and message boxes.
 
 ## Regenerating test data
 

@@ -79,16 +79,57 @@ Paths are relative to the `tests/` folder.
 | `backends/python_backend.py` | backend for the Python program |
 | `backends/c_backend.py` | backend for the C program (calls the compiled C library through Python's `ctypes`) |
 | `backends/__init__.py` | `load_backend()`: creates the backend chosen by `--backend` |
-| `conftest.py` | read by pytest automatically: the command-line options and the shared ready-made values (`backend`, `data_image`, `golden`, `golden_png`) |
+| `conftest.py` | read by pytest automatically: the command-line options and the shared ready-made values (`backend`, `data_image`, `golden`, `golden_png`, `ui`) |
 | `helpers.py` | the tests' own tools (loading images, polygon area, distances, …); never call the program |
 | `test_*.py` | the tests |
 | `data/`, `golden/` | input pictures and saved reference results |
 | `tools/` | scripts that created `data/` and `golden/` |
 | `docs/` | this explanation, the list of test scenarios and the README |
+| `ui/driver.tcl`, `ui/drivers.py` | tools for the GUI tests (see below) |
 | `pytest.ini` (in the project root, one level above `tests/`) | pytest settings (where the tests are, extra output) |
 
 ## GUI tests
 
-The GUI tests (planned) work differently: they start the real application window and operate it through
-Tk, the GUI toolkit both programs use. File dialogs and message boxes are replaced by test versions, so
-no person has to click anything.
+The GUI tests (`test_ui.py`) do not use a backend. They open the **real program window** and use it like a
+person would: they click buttons, choose menu items and read the texts. Three files make this possible.
+
+**`conftest.py` – a clean start for every test.** Before each GUI test, the fixture `ui`:
+
+1. creates an empty temporary folder with what the program needs there: `logo.png`, `img_input/`,
+   `img_output/` and `points_output/`;
+2. starts the program in that folder (the Python one, or the C one with `--backend=c`);
+3. closes the program when the test ends.
+
+So every test starts fresh, and points files and saved pictures never end up in the project.
+
+**`ui/driver.tcl` – the "hands and eyes" inside the program.** Both programs draw their window with Tk
+(Python through tkinter, C directly), and this file is loaded into the running program. It can:
+
+* **see** which buttons, labels and menus are visible and what text they show;
+* **click** a button or choose a menu item by its text, e.g. `click "Vybrat obrázek"`;
+* **replace the dialogs with test versions.** A real file dialog or message box would wait for a person.
+  The test version answers at once with what the test asked for, and writes down every message instead
+  of showing it.
+
+It only does what a user could do: it does not click hidden widgets, or the main window while the result
+window is open. The program's own code is not changed.
+
+**`ui/drivers.py` – the connection between a test and the program.** A test says simple things like
+`ui.click("Vybrat obrázek")` or `ui.messages()`; this file turns them into commands for `driver.tcl` and
+brings the answers back. There are two versions:
+
+* **Python program** – runs it inside the test itself. If the program crashes, the test fails instead of
+  passing silently.
+* **C program** – starts it as a separate program and exchanges messages with it (`--test-driver`).
+
+This is why the GUI tests are written only once and work for both programs.
+
+**One test, step by step** – choosing a file that is not a picture:
+
+```python
+ui.answer_open_file("/tmp/bad.jpg")     # the next file dialog returns this path
+ui.click("Vybrat obrázek")              # press the button; the program tries to open the file
+assert ui.messages()[0]["-message"] == "Soubor /tmp/bad.jpg není validní obrázek."
+```
+
+The GUI tests open windows on the screen for a moment. `pytest -m ui` runs only them.
