@@ -100,6 +100,10 @@ class Controller(tk.Tk):
 
         self.__tessellation = TessellationType(tessellation_string)
 
+        # menu rozdělení a efektů se zobrazí znovu bez výběru -> dřívější výběr se zruší
+        self.__distribution = None
+        self.__effect = None
+
         self.__frames[OptionsFrame.NAME].show_distribution_menu(self.__tessellation)
         self.__frames[OptionsFrame.NAME].show_effect_menu(self.__tessellation)
         self.__frames[OptionsFrame.NAME].show_continue_button()
